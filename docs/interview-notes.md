@@ -66,4 +66,13 @@ One short entry per component: what it is, why it is built this way, and the tra
 
 **Trade-off:** Android 14+ enforces strict foreground service type policies and requires runtime permissions (`FOREGROUND_SERVICE_LOCATION`, `ACCESS_FINE_LOCATION`) and an eligible app state before starting location-typed services.
 
+## M8 — Compose UI, False Alarm Cancel, SOS Button & History
+
+**What:** Jetpack Compose user interface (`StatusScreen`, `HistoryScreen`, `StatusViewModel`, `HistoryViewModel`, tab navigation in `MainActivity`) and automated instrumented UI tests (`SafeSignalUiTest`).
+
+**Why:** Gives lone workers clear visual indicators of protection state (Off Duty, Monitoring Active, Countdown, Dispatching, Delivered, Acknowledged). The countdown screen features a prominent, unmissable "I'm OK — Cancel Alarm" button to prevent false alarms from burdening central dispatch, while the SOS button provides immediate emergency escalation. The History tab provides an immutable on-device audit trail of all alerts and acknowledgements.
+
+**Trade-off:** Compose UI test automation on emulators requires test synchronization rules and explicit state waiting (`waitUntil`), but ensures high-fidelity regression protection against visual state bugs and lifecycle flaws.
+
+
 

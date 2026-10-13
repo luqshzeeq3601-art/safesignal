@@ -2,7 +2,16 @@
 
 ## Unreleased
 
-### M7 — Foreground Monitoring Service & Fall Detection (2026-10-14)
+### M8 — Compose UI, False Alarm Cancel, SOS Button & History (2026-10-14)
+
+- Implemented `StatusViewModel` and `StatusUiState` binding real-time state from `AlertController` and managing shift/alert actions.
+- Implemented `HistoryViewModel` and `HistoryUiState` reactively observing alert persistence from `AlertRepository`.
+- Implemented user-facing `StatusScreen` with dynamic status banners (Off Duty, Monitoring Active, Emergency Countdown, Dispatching, Delivered, Acknowledged), prominent Start/Stop shift buttons, high-visibility Emergency SOS button, and "I'm OK — Cancel Alarm" action during countdown.
+- Implemented `HistoryScreen` displaying real-time audit trail of alerts with type badges (`FALL`, `MAN_DOWN`, `SOS`), status badges (`PENDING`, `SENT`, `ACKNOWLEDGED`, `CANCELLED`), GPS fix coordinates, battery levels, and dispatcher acknowledgement records.
+- Updated `MainActivity` with bottom navigation tab switching between Status and History views.
+- Updated `AlertController` to persist cancelled alert records into Room upon `CancelPressed` during countdowns.
+- Added comprehensive Compose UI instrumented tests (`SafeSignalUiTest`) verifying shift transitions, countdown UI with cancel button, false alarm cancellation recording in History, emergency SOS button dispatch, and empty state handling.
+- Verified with `.\gradlew.bat :app:connectedDebugAndroidTest` (10/10 tests pass on AOSP API 34 emulator).
 
 - Implemented data sources with test doubles: `SensorSource` (`AndroidSensorSource`, `ReplaySensorSource`), `LocationSource` (`AndroidLocationSource`, `FakeLocationSource`), `BatterySource` (`AndroidBatterySource`, `FakeBatterySource`).
 - Implemented `AlertController` singleton owning `StateFlow<AlertStateMachine.State>` and executing state-machine effects (`StartCountdown`, `StopCountdown`, `PersistAlert`, `SendAlert`, `StartAckPolling`, `LogKpi`).
