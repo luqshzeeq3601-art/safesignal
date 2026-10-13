@@ -41,3 +41,11 @@ One short entry per component: what it is, why it is built this way, and the tra
 **Why:** Proves that alerts flow from worker to server and through acknowledgement with zero Android dependencies. Validates network retry survival during transient outages and verifies end-to-end integration in seconds on standard CI machines.
 
 **Trade-off:** Simulates radio link failures through HTTP failure responses and backoff delays rather than actual cellular modem disconnection.
+
+## M5 — Android Toolchain & App Skeleton
+
+**What:** Android SDK API 34 setup, `:app` module scaffolding with Compose, and an automated AOSP API 34 emulator startup script (`scripts/emulator-start.ps1`).
+
+**Why:** Establishes the real Android runtime and device verification pipeline without breaking JVM test speed. An AOSP image (without Google Play Services) mirrors target ruggedized enterprise devices and boots quickly.
+
+**Trade-off:** Android SDK compilation and emulator booting add toolchain weight compared to pure JVM modules, but are essential for sensor listeners, foreground services, and privileged system app testing in subsequent milestones.

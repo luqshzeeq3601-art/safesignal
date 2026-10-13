@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+### M5 — Android Toolchain & App Skeleton (2026-10-14)
+
+- Configured Android SDK API 34 (`platforms/android-34`, `build-tools/34.0.0`, `emulator`, AOSP `x86_64` system image).
+- Scaffolding `:app` module wired with Jetpack Compose, Material 3, `:detection`, and `:protocol` dependencies.
+- Added `scripts/emulator-start.ps1` for automated AOSP emulator startup and `sys.boot_completed` polling.
+- Implemented `MainActivity` skeleton with Compose UI (`Status: ok`).
+- Verified `:app:assembleDebug`, `:app:lintDebug`, emulator boot (`sys.boot_completed = 1`), APK installation, and cold launch via adb.
+
 ### M4 — Fake Worker Bot & JVM E2E (2026-10-14)
 
 - Implemented `:bot` CLI application (`WorkerBot`, `BotMain`) simulating worker shifts and emergency alert flows.
