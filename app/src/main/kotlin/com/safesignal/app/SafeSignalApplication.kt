@@ -1,6 +1,7 @@
 package com.safesignal.app
 
 import android.app.Application
+import android.util.Log
 import com.safesignal.app.data.AlertRepository
 import com.safesignal.app.data.AlertSyncer
 import com.safesignal.app.data.FileKpiLogger
@@ -80,6 +81,8 @@ class SafeSignalApplication : Application() {
             kpiLogger = kpiLogger,
             countdownSeconds = settingsRepository.countdownSeconds
         )
+
+        Log.i("SafeSignal", "SafeSignalApplication initialized. Worker: ${settingsRepository.workerId}, Device: ${settingsRepository.deviceId}")
     }
 
     companion object {

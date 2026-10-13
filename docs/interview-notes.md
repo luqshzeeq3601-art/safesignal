@@ -82,6 +82,10 @@ One short entry per component: what it is, why it is built this way, and the tra
 
 **Trade-off:** End-to-end emulator testing involves multiple moving parts (adb process control, reverse port forwarding, Ktor server process lifecycles, and asynchronous polling), requiring robust timeout management and clean process tree teardown in PowerShell.
 
+## M10 — Privileged System App & Hardware Serial
 
+**What:** SafeSignal installed as a privileged system application under `/system/priv-app/SafeSignal/` with `privapp-permissions` XML allowlisting `android.permission.READ_PRIVILEGED_PHONE_STATE`, dynamically reading `Build.getSerial()` matching `ro.serialno`.
 
+**Why:** Dedicated enterprise and lone-worker devices require immutable hardware identification to bind alerts to physical inventory rather than ephemeral software IDs. Android 10+ restricts `Build.getSerial()` to privileged apps with `READ_PRIVILEGED_PHONE_STATE`. Granting this via AOSP `/system/etc/permissions/` allows zero-touch device identity binding on custom ROMs.
 
+**Trade-off:** Placing an application in `/system/priv-app` requires root access, partition remount (`overlayfs`), and matching signature/allowlist policies during system integration, making development iterations slightly longer than standard user-space APK sideloading.

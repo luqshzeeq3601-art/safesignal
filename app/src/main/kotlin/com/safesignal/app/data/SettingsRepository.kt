@@ -16,7 +16,34 @@ class SettingsRepository(
         }
 
     var deviceId: String
-        get() = prefs?.getString(KEY_DEVICE_ID, DEFAULT_DEVICE_ID) ?: DEFAULT_DEVICE_ID
+        get() {
+            val custom = prefs?.getString(KEY_DEVICE_ID, null)
+            if (!custom.isNullOrBlank()) {
+                return custom
+            }
+            return try {
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                    val serial = android.os.Build.getSerial()
+                    if (!serial.isNullOrBlank() && serial != android.os.Build.UNKNOWN) {
+                        serial
+                    } else {
+                        DEFAULT_DEVICE_ID
+                    }
+                } else {
+                    @Suppress("DEPRECATION")
+                    val serial = android.os.Build.SERIAL
+                    if (!serial.isNullOrBlank() && serial != android.os.Build.UNKNOWN) {
+                        serial
+                    } else {
+                        DEFAULT_DEVICE_ID
+                    }
+                }
+            } catch (_: SecurityException) {
+                DEFAULT_DEVICE_ID
+            } catch (_: Exception) {
+                DEFAULT_DEVICE_ID
+            }
+        }
         set(value) {
             prefs?.edit()?.putString(KEY_DEVICE_ID, value)?.apply()
         }

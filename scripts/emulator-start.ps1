@@ -4,7 +4,8 @@
 param(
     [string]$AvdName = "aosp_api34",
     [int]$TimeoutSec = 180,
-    [switch]$Headless
+    [switch]$Headless,
+    [switch]$WritableSystem
 )
 
 $ErrorActionPreference = "Stop"
@@ -52,6 +53,9 @@ if ($devices) {
 
 Write-Host "Starting emulator '$AvdName'..."
 $emulatorArgs = @("-avd", $AvdName, "-no-snapshot-load", "-gpu", "auto")
+if ($WritableSystem) {
+    $emulatorArgs += "-writable-system"
+}
 if ($Headless) {
     $emulatorArgs += @("-no-window", "-no-audio")
 }
