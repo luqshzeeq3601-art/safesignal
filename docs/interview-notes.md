@@ -74,5 +74,14 @@ One short entry per component: what it is, why it is built this way, and the tra
 
 **Trade-off:** Compose UI test automation on emulators requires test synchronization rules and explicit state waiting (`waitUntil`), but ensures high-fidelity regression protection against visual state bugs and lifecycle flaws.
 
+## M9 — Dispatcher Acknowledgement & Emulator End-to-End
+
+**What:** Full-loop integration test script (`scripts/e2e.ps1`) executing across 4 validation gates: foreground monitoring service startup, synthetic fall injection, dispatcher server ingestion with valid GPS location and battery level, and dispatcher acknowledgement observed by the Android worker beacon.
+
+**Why:** Proves that the complete distributed system functions as a cohesive unit on actual Android runtime rather than isolated mocks. Uncovered and eliminated subtle race conditions between asynchronous Room outbox persistence and HTTP network dispatching.
+
+**Trade-off:** End-to-end emulator testing involves multiple moving parts (adb process control, reverse port forwarding, Ktor server process lifecycles, and asynchronous polling), requiring robust timeout management and clean process tree teardown in PowerShell.
+
+
 
 

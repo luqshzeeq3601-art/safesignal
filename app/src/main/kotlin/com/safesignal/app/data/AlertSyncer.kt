@@ -24,8 +24,17 @@ class AlertSyncer(
      * Attempts delivery of a single pending alert from the outbox with exponential backoff.
      */
     suspend fun sendPendingAlert(alertId: String): Result<AlertRecord> {
-        val alert = repository.getAlert(alertId)
-            ?: return Result.failure(IllegalArgumentException("Alert $alertId not found"))
+        var alert = repository.getAlert(alertId)
+        if (alert == null) {
+            repeat(5) {
+                delayProvider(100L)
+                alert = repository.getAlert(alertId)
+                if (alert != null) return@repeat
+            }
+        }
+        if (alert == null) {
+            return Result.failure(IllegalArgumentException("Alert $alertId not found"))
+        }
 
         if (alert.status != AlertEntity.STATUS_PENDING) {
             return Result.failure(IllegalStateException("Alert $alertId is not PENDING (current status: ${alert.status})"))
