@@ -1,0 +1,68 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-test-verify:
+    name: Build, Test & Verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x ./gradlew
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Run JVM Module Tests (:detection, :protocol, :server, :bot, :kpi)
+        run: ./gradlew :detection:test :protocol:test :server:test :bot:test :kpi:test
+
+      - name: Run Android App Unit Tests
+        run: ./gradlew :app:testDebugUnitTest
+
+      - name: Run Android Lint Check
+        run: ./gradlew :app:lintDebug
+
+      - name: Run JVM End-to-End Simulation (M4)
+        run: pwsh ./scripts/e2e-jvm.ps1
+
+      - name: Run KPI Measurement & Verification (M14)
+        run: pwsh ./scripts/kpi-run.ps1 -Quick
+
+      - name: Upload KPI Summary Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: kpi-summary-report
+          path: build/kpi/
+
+      - name: Upload Test Reports on Failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: junit-test-reports
+          path: |
+            **/build/reports/tests/
+            app/build/reports/

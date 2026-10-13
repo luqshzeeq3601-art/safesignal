@@ -14,9 +14,17 @@ $serverProcess = $null
 try {
     # 1. Start Ktor server in background
     Write-Host "[1/4] Starting SafeSignal server on port 8080..."
+    $isWindows = ($PSVersionTable.PSVersion.Major -lt 6) -or ($PSVersionTable.OS -like "*Windows*") -or ($env:OS -like "*Windows*")
+    $gradlew = if ($isWindows) { ".\gradlew.bat" } else { "./gradlew" }
+
     $serverStartInfo = New-Object System.Diagnostics.ProcessStartInfo
-    $serverStartInfo.FileName = "cmd.exe"
-    $serverStartInfo.Arguments = "/c .\gradlew.bat :server:run"
+    if ($isWindows) {
+        $serverStartInfo.FileName = "cmd.exe"
+        $serverStartInfo.Arguments = "/c .\gradlew.bat :server:run"
+    } else {
+        $serverStartInfo.FileName = "/bin/bash"
+        $serverStartInfo.Arguments = "-c `"./gradlew :server:run`""
+    }
     $serverStartInfo.WorkingDirectory = $projectRoot
     $serverStartInfo.UseShellExecute = $false
     $serverStartInfo.CreateNoWindow = $true
@@ -33,6 +41,9 @@ try {
     while (-not $healthy -and ((Get-Date) - $startWait).TotalSeconds -lt $timeoutSec) {
         try {
             $response = curl.exe -s http://localhost:8080/health
+            if (-not $response) {
+                $response = (Invoke-RestMethod -Uri "http://localhost:8080/health" -TimeoutSec 2 -ErrorAction SilentlyContinue)
+            }
             if ($response -eq "OK") {
                 $healthy = $true
                 break
@@ -50,9 +61,13 @@ try {
 
     # 3. Run WorkerBot JVM CLI
     Write-Host "[3/4] Running WorkerBot (5 alerts, 1 simulated retry, auto-ack enabled)..."
-    $botCmd = ".\gradlew.bat :bot:run --args=`"--server http://localhost:8080 --count 5 --simulate-retries 1 --auto-ack true`""
+    $botArgs = "--server http://localhost:8080 --count 5 --simulate-retries 1 --auto-ack true"
     
-    $botOutput = & cmd.exe /c $botCmd 2>&1
+    $botOutput = if ($isWindows) {
+        & cmd.exe /c ".\gradlew.bat :bot:run --args=`"$botArgs`"" 2>&1
+    } else {
+        & ./gradlew :bot:run --args="$botArgs" 2>&1
+    }
     $botOutputStr = $botOutput -join "`n"
     Write-Host $botOutputStr
 
