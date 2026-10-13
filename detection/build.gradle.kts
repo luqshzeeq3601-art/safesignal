@@ -12,3 +12,11 @@ java {
 dependencies {
     testImplementation(libs.junit)
 }
+
+tasks.test {
+    testLogging {
+        events("passed", "skipped", "failed")
+        showStandardStreams = true
+    }
+}
+
