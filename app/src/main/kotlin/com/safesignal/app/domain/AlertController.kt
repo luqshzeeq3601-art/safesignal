@@ -212,7 +212,7 @@ class AlertController(
             }
 
             is AlertStateMachine.Effect.LogKpi -> {
-                kpiLogger.logEvent(alertId = "", event = effect.eventName, detail = effect.detail)
+                kpiLogger.logEvent(alertId = effect.alertId, event = effect.eventName, detail = effect.detail)
             }
         }
     }
