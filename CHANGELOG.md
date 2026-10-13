@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+### M4 — Fake Worker Bot & JVM E2E (2026-10-14)
+
+- Implemented `:bot` CLI application (`WorkerBot`, `BotMain`) simulating worker shifts and emergency alert flows.
+- Implemented network outage simulation and exponential backoff retry verification.
+- Added automated JVM end-to-end integration script `scripts/e2e-jvm.ps1`.
+- Verified 5/5 alerts delivered and acknowledged with retries > 0 on live Ktor server without Android hardware.
+
 ### M3 — Dispatcher Server & Console (2026-10-14)
 
 - Implemented `:server` with Ktor Netty, serving REST endpoints `/api/alerts`, `/api/alerts/{id}/ack`, and `/health`.
