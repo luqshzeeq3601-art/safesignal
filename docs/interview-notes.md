@@ -58,3 +58,12 @@ One short entry per component: what it is, why it is built this way, and the tra
 
 **Trade-off:** Running the retry loop in the service process instead of WorkManager minimizes latency and simplifies testing with simulated time, but requires the outbox to be re-scanned when the process or service restarts.
 
+## M7 — Foreground Monitoring Service & Fall Detection
+
+**What:** A foreground Android service (`MonitorService`, type `location`), partial wake lock, accelerometer listener (`SensorSource`), pure state machine orchestrator (`AlertController`), and kinematic fall engine (`FallDetector`).
+
+**Why:** Background sensors on modern Android are throttled or killed unless hosted in a foreground service with a partial wake lock. Decoupling sensor ingestion via `SensorSource` and business transitions into pure `AlertStateMachine` ensures the signal processing remains testable without device hardware, while `FallInjectionReceiver` and `scripts/inject-fall.ps1` enable automated live verification on the AOSP emulator.
+
+**Trade-off:** Android 14+ enforces strict foreground service type policies and requires runtime permissions (`FOREGROUND_SERVICE_LOCATION`, `ACCESS_FINE_LOCATION`) and an eligible app state before starting location-typed services.
+
+

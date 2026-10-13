@@ -1,0 +1,80 @@
+﻿=== M7 ACCEPTANCE VERIFICATION ===
+Date: 2026-10-14 01:16:57 +08:00
+
+1. GRADLE UNIT TESTS (:app:testDebugUnitTest)
+> Task :detection:compileJava
+> Task :detection:processResources NO-SOURCE
+> Task :detection:classes
+> Task :detection:jar
+> Task :protocol:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :protocol:processResources NO-SOURCE
+> Task :app:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :app:generateDebugResValues
+> Task :app:mapDebugSourceSetPaths
+> Task :app:generateDebugResources
+> Task :app:checkDebugAarMetadata
+> Task :protocol:compileKotlin
+> Task :protocol:compileJava NO-SOURCE
+> Task :protocol:classes UP-TO-DATE
+> Task :protocol:jar
+> Task :app:packageDebugResources
+> Task :app:createDebugCompatibleScreenManifests
+> Task :app:parseDebugLocalResources
+> Task :app:extractDeepLinksDebug
+> Task :app:processDebugMainManifest
+> Task :app:processDebugManifest
+> Task :app:preDebugUnitTestBuild UP-TO-DATE
+> Task :app:processDebugManifestForPackage
+> Task :app:javaPreCompileDebug
+> Task :app:javaPreCompileDebugUnitTest
+> Task :app:mergeDebugResources
+> Task :app:processDebugResources
+> Task :app:kaptGenerateStubsDebugKotlin
+> Task :app:kaptDebugKotlin
+> Task :app:compileDebugKotlin
+> Task :app:compileDebugJavaWithJavac
+> Task :app:processDebugJavaRes
+> Task :app:bundleDebugClassesToRuntimeJar
+> Task :app:bundleDebugClassesToCompileJar
+> Task :app:kaptGenerateStubsDebugUnitTestKotlin
+> Task :app:kaptDebugUnitTestKotlin
+> Task :app:compileDebugUnitTestKotlin
+> Task :app:compileDebugUnitTestJavaWithJavac NO-SOURCE
+> Task :app:processDebugUnitTestJavaRes
+> Task :app:testDebugUnitTest
+
+[Incubating] Problems report is available at: file:///C:/Users/ZeeqRyz/Desktop/03_Software_and_Agents/SafeSignal%20Lone%20Worker%20Emergency%20Beacon/build/reports/problems/problems-report.html
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 10.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/9.8.1/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD SUCCESSFUL in 15s
+31 actionable tasks: 31 executed
+Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.8.1/userguide/configuration_cache_enabling.html
+
+2. INJECT FALL VERIFICATION (.\scripts\inject-fall.ps1)
+=== SafeSignal: Fall Injection & Foreground Service Verification ===
+Target device online: device
+Logcat buffer cleared.
+Installing latest app build...
+Install: Performing Streamed Install Success
+Launching MainActivity and starting MonitorService in foreground...
+Broadcasting INJECT_FALL intent with countdown=3s...
+Waiting 6s for countdown and sending transition...
+
+--- Captured SafeSignal Logs ---
+--------- beginning of main 10-13 17:17:18.231  3242  3242 I SafeSignal: service isForeground=true 10-13 17:17:18.234  3242  3242 I SafeSignal: State transition: Idle -> Monitoring 10-13 17:17:20.287  3242  3242 I SafeSignal: FallInjectionReceiver: Received fall injection request 10-13 17:17:20.291  3242  3263 W SafeSignal: Fall detected by kinematics engine! 10-13 17:17:20.295  3242  3263 I SafeSignal: State transition: Monitoring -> Countdown(type=FALL, secondsLeft=3) 10-13 17:17:20.295  3242  3263 I SafeSignal: Monitoring -> Countdown(FALL) 10-13 17:17:21.302  3242  3264 I SafeSignal: State transition: Countdown(type=FALL, secondsLeft=3) -> Countdown(type=FALL, secondsLeft=2) 10-13 17:17:22.313  3242  3263 I SafeSignal: State transition: Countdown(type=FALL, secondsLeft=2) -> Countdown(type=FALL, secondsLeft=1) 10-13 17:17:23.325  3242  3265 I SafeSignal: State transition: Countdown(type=FALL, secondsLeft=1) -> Sending(alertId=b9237bff-0512-4d53-a9f9-9e948ff247ec, attempt=1, type=FALL) 10-13 17:17:23.325  3242  3265 I SafeSignal: Countdown(FALL) -> Sending 10-13 17:17:23.325  3242  3265 I SafeSignal: -> Sending 10-13 17:17:23.360  3242  3263 I SafeSignal: State transition: Sending(alertId=b9237bff-0512-4d53-a9f9-9e948ff247ec, attempt=1, type=FALL) -> Sending(alertId=b9237bff-0512-4d53-a9f9-9e948ff247ec, attempt=2, type=FALL)
+--------------------------------
+
+Verification Checklist:
+  [1] service isForeground=true : PASS
+  [2] Monitoring -> Countdown(FALL) : PASS
+  [3] -> Sending : PASS
+
+M7 VERIFICATION SUCCESSFUL: Foreground fall monitoring and sending verified!
+
