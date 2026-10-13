@@ -1,0 +1,48 @@
+> Task :detection:compileJava UP-TO-DATE
+> Task :detection:processResources NO-SOURCE
+> Task :detection:classes UP-TO-DATE
+> Task :detection:compileTestJava UP-TO-DATE
+> Task :detection:processTestResources UP-TO-DATE
+> Task :detection:testClasses UP-TO-DATE
+
+> Task :detection:test
+
+AccelSampleTest > testMagnitudeCalculation PASSED
+
+AccelSampleTest > testDetectionEventProperties PASSED
+
+DetectorConfigTest > testDefaultConfigValues PASSED
+
+DetectorConfigTest > testBuilderCustomValues PASSED
+
+FallDetectorTest > zeroDetectionsOnWalkTraces PASSED
+
+FallDetectorTest > zeroDetectionsOnSitTraces PASSED
+
+FallDetectorTest > testImpactWithoutFreeFallDoesNotTrigger PASSED
+
+FallDetectorTest > testMovementDuringStillnessWindowAbortsDetection PASSED
+
+FallDetectorTest > testResetClearsState PASSED
+
+FallDetectorTest > testFreeFallWithoutImpactDoesNotTrigger PASSED
+
+FallDetectorTest > testFreeFallTooBriefDoesNotTrigger PASSED
+
+FallDetectorTest > everyFallTraceIsDetected PASSED
+
+FallDetectorTest > zeroDetectionsOnDropPhoneTraces PASSED
+
+ManDownDetectorTest > testResetClearsState PASSED
+
+ManDownDetectorTest > testMandownCollapseTraceTriggersManDown PASSED
+
+ManDownDetectorTest > testBriefPauseFollowedByMovementDoesNotTriggerManDown PASSED
+
+ManDownDetectorTest > testContinuousImmobilityTriggersManDown PASSED
+
+ManDownDetectorTest > testWalkingDoesNotTriggerManDown PASSED
+
+BUILD SUCCESSFUL in 1s
+4 actionable tasks: 1 executed, 3 up-to-date
+Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.8.1/userguide/configuration_cache_enabling.html

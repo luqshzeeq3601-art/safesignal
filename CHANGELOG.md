@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+### M1 — Detection (2026-10-13)
+
+- Implemented pure Java `:detection` module (`AccelSample`, `DetectionEvent`, `DetectorConfig`).
+- Implemented `FallDetector` with 3-phase kinematic recognition (free-fall valley, impact shock, and post-fall stillness).
+- Implemented `ManDownDetector` tracking prolonged worker immobility.
+- Added `scripts/gen-traces.ps1` generating 13 synthetic accelerometer traces.
+- Validated 100% detection rate on `fall_*` traces and 0% false positives on `walk_*`, `sit_*`, and `drop_phone_*` traces.
+
 ### M0 — Scaffold (2026-10-13)
 
 - Git repository, Gradle 9.8.1 wrapper, version catalog.
