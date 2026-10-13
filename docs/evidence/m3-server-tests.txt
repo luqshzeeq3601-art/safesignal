@@ -1,0 +1,92 @@
+> Task :protocol:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :protocol:compileKotlin UP-TO-DATE
+> Task :protocol:compileJava NO-SOURCE
+> Task :protocol:processResources NO-SOURCE
+> Task :protocol:classes UP-TO-DATE
+> Task :protocol:jar UP-TO-DATE
+> Task :server:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :server:compileKotlin UP-TO-DATE
+> Task :server:compileJava NO-SOURCE
+> Task :server:processResources UP-TO-DATE
+> Task :server:classes UP-TO-DATE
+> Task :server:jar UP-TO-DATE
+> Task :server:compileTestKotlin UP-TO-DATE
+> Task :server:compileTestJava NO-SOURCE
+> Task :server:processTestResources NO-SOURCE
+> Task :server:testClasses UP-TO-DATE
+
+> Task :server:test
+
+AlertStoreTest > acknowledgeUpdatesRecordAndLogsKpi PASSED
+
+AlertStoreTest > putReturnsCreatedAndLogsKpi PASSED
+
+AlertStoreTest > persistencePreservedAcrossStoreInstances PASSED
+
+ServerApiTest > testHealthEndpointReturnsOk STANDARD_OUT
+    00:09:30.578 [DefaultDispatcher-worker-2 @call-context#3] INFO io.ktor.test -- No ktor.deployment.watch patterns specified, automatic reload is not active.
+    00:09:30.694 [DefaultDispatcher-worker-2 @call-context#3] INFO io.ktor.test -- Application started in 0.145 seconds.
+    00:09:30.697 [DefaultDispatcher-worker-3 @coroutine#5] INFO io.ktor.test -- Responding at http://localhost:80
+    00:09:30.698 [DefaultDispatcher-worker-3 @coroutine#5] INFO io.ktor.test -- Responding at https://localhost:443
+
+ServerApiTest > testHealthEndpointReturnsOk PASSED
+
+ServerApiTest > testGetAlertByIdAndNotFound STANDARD_OUT
+    00:09:30.883 [DefaultDispatcher-worker-7 @call-context#15] INFO io.ktor.test -- No ktor.deployment.watch patterns specified, automatic reload is not active.
+    00:09:30.883 [DefaultDispatcher-worker-7 @call-context#15] INFO io.ktor.test -- Application started in 0.001 seconds.
+    00:09:30.883 [DefaultDispatcher-worker-5 @coroutine#17] INFO io.ktor.test -- Responding at http://localhost:80
+    00:09:30.885 [DefaultDispatcher-worker-5 @coroutine#17] INFO io.ktor.test -- Responding at https://localhost:443
+
+ServerApiTest > testGetAlertByIdAndNotFound PASSED
+
+ServerApiTest > testConsoleEndpointReturnsHtml STANDARD_OUT
+    00:09:30.977 [DefaultDispatcher-worker-3 @call-context#31] INFO io.ktor.test -- No ktor.deployment.watch patterns specified, automatic reload is not active.
+    00:09:30.978 [DefaultDispatcher-worker-3 @call-context#31] INFO io.ktor.test -- Application started in 0.002 seconds.
+    00:09:30.978 [DefaultDispatcher-worker-7 @coroutine#33] INFO io.ktor.test -- Responding at http://localhost:80
+    00:09:30.978 [DefaultDispatcher-worker-7 @coroutine#33] INFO io.ktor.test -- Responding at https://localhost:443
+
+ServerApiTest > testConsoleEndpointReturnsHtml PASSED
+
+ServerApiTest > testAcknowledgeAlertFlow STANDARD_OUT
+    00:09:30.998 [DefaultDispatcher-worker-5 @call-context#43] INFO io.ktor.test -- No ktor.deployment.watch patterns specified, automatic reload is not active.
+    00:09:30.999 [DefaultDispatcher-worker-5 @call-context#43] INFO io.ktor.test -- Application started in 0.001 seconds.
+    00:09:30.999 [DefaultDispatcher-worker-4 @coroutine#45] INFO io.ktor.test -- Responding at http://localhost:80
+    00:09:30.999 [DefaultDispatcher-worker-4 @coroutine#45] INFO io.ktor.test -- Responding at https://localhost:443
+
+ServerApiTest > testAcknowledgeAlertFlow PASSED
+
+ServerApiTest > testPostInvalidAlertReturns400BadRequest STANDARD_OUT
+    00:09:31.016 [DefaultDispatcher-worker-7 @call-context#59] INFO io.ktor.test -- No ktor.deployment.watch patterns specified, automatic reload is not active.
+    00:09:31.017 [DefaultDispatcher-worker-7 @call-context#59] INFO io.ktor.test -- Application started in 0.001 seconds.
+    00:09:31.017 [DefaultDispatcher-worker-2 @coroutine#61] INFO io.ktor.test -- Responding at http://localhost:80
+    00:09:31.017 [DefaultDispatcher-worker-2 @coroutine#61] INFO io.ktor.test -- Responding at https://localhost:443
+
+ServerApiTest > testPostInvalidAlertReturns400BadRequest PASSED
+
+ServerApiTest > testListAlertsNewestFirst STANDARD_OUT
+    00:09:31.031 [DefaultDispatcher-worker-9 @call-context#71] INFO io.ktor.test -- No ktor.deployment.watch patterns specified, automatic reload is not active.
+    00:09:31.032 [DefaultDispatcher-worker-9 @call-context#71] INFO io.ktor.test -- Application started in 0.002 seconds.
+    00:09:31.033 [DefaultDispatcher-worker-2 @coroutine#73] INFO io.ktor.test -- Responding at http://localhost:80
+    00:09:31.033 [DefaultDispatcher-worker-2 @coroutine#73] INFO io.ktor.test -- Responding at https://localhost:443
+
+ServerApiTest > testListAlertsNewestFirst PASSED
+
+ServerApiTest > testPostNewAlertReturns201Created STANDARD_OUT
+    00:09:31.051 [DefaultDispatcher-worker-11 @call-context#83] INFO io.ktor.test -- No ktor.deployment.watch patterns specified, automatic reload is not active.
+    00:09:31.052 [DefaultDispatcher-worker-11 @call-context#83] INFO io.ktor.test -- Application started in 0.001 seconds.
+    00:09:31.052 [DefaultDispatcher-worker-1 @coroutine#85] INFO io.ktor.test -- Responding at http://localhost:80
+    00:09:31.052 [DefaultDispatcher-worker-1 @coroutine#85] INFO io.ktor.test -- Responding at https://localhost:443
+
+ServerApiTest > testPostNewAlertReturns201Created PASSED
+
+ServerApiTest > testPostDuplicateAlertReturns200Ok STANDARD_OUT
+    00:09:31.065 [DefaultDispatcher-worker-2 @call-context#95] INFO io.ktor.test -- No ktor.deployment.watch patterns specified, automatic reload is not active.
+    00:09:31.066 [DefaultDispatcher-worker-2 @call-context#95] INFO io.ktor.test -- Application started in 0.001 seconds.
+    00:09:31.066 [DefaultDispatcher-worker-1 @coroutine#97] INFO io.ktor.test -- Responding at http://localhost:80
+    00:09:31.066 [DefaultDispatcher-worker-1 @coroutine#97] INFO io.ktor.test -- Responding at https://localhost:443
+
+ServerApiTest > testPostDuplicateAlertReturns200Ok PASSED
+
+BUILD SUCCESSFUL in 5s
+7 actionable tasks: 1 executed, 6 up-to-date
+Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.8.1/userguide/configuration_cache_enabling.html

@@ -25,3 +25,11 @@ One short entry per component: what it is, why it is built this way, and the tra
 **Why:** Defining a pure state machine `transition(state, event) -> (newState, effects)` decouples emergency logic from Android and network I/O, making every state edge testable in milliseconds. Sharing models across `:protocol`, `:server`, `:bot`, and `:app` prevents schema drift. Client-generated `alertId` guarantees POST idempotence.
 
 **Trade-off:** Effects cannot execute inline and must be interpreted by an outer controller, requiring explicit effect definitions.
+
+## M3 — Dispatcher Server & Web Console
+
+**What:** Ktor Netty HTTP server (`:server`), thread-safe `AlertStore` with append-only JSONL persistence, `server_events.csv` KPI logger, and a static web console.
+
+**Why:** Sharing data models directly with `:protocol` eliminates serialization drift. The client-generated `alertId` makes retried POSTs idempotent (returning HTTP 200 on duplicate vs 201 on new). A zero-dependency vanilla JS console with 2-second polling delivers immediate dispatcher visibility and acknowledgement without complex WebSocket infrastructure.
+
+**Trade-off:** 2-second HTTP polling incurs periodic requests rather than push events, but operates reliably across constrained networks without stateful socket maintenance.
