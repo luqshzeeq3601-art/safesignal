@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+### M10 — Privileged System App & Device Serial (2026-10-14)
+
+- Configured privileged permission `android.permission.READ_PRIVILEGED_PHONE_STATE` in `app/src/main/AndroidManifest.xml`.
+- Created privapp permissions allowlist `aosp/privapp-permissions-com.safesignal.app.xml` granting `READ_PRIVILEGED_PHONE_STATE` to package `com.safesignal.app`.
+- Updated `SettingsRepository.deviceId` to dynamically read hardware serial via `Build.getSerial()` when granted, falling back to system defaults.
+- Implemented `aosp/install-privapp.ps1` to mount AOSP `/system` writable via overlayfs, push `SafeSignal.apk` to `/system/priv-app/SafeSignal/`, install the permissions allowlist to `/system/etc/permissions/`, restart the Android runtime, and grant baseline runtime permissions.
+- Implemented `aosp/verify-privapp.ps1` verifying system path resolution under `/system/priv-app/`, `READ_PRIVILEGED_PHONE_STATE: granted=true`, and `deviceId` matching `ro.serialno` (`EMULATOR37X2X12X0`).
+- Verified live on AOSP API 34 emulator with evidence saved in `docs/evidence/m10-privileged-app.txt`.
+
 ### M9 — Dispatcher Acknowledgement & Emulator E2E (2026-10-14)
 
 - Implemented `scripts/e2e.ps1` automating the complete end-to-end emulator verification across 4 gates:

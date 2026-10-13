@@ -16,8 +16,8 @@ Status: ✅ done · ⏳ next · ⬜ to do
 | M7 | ✅ | As a lone worker, I want monitoring to keep running in the background during my shift | `.\scripts\inject-fall.ps1` then `adb logcat -d -s SafeSignal` | `Monitoring -> Countdown(FALL)` then `-> Sending`; service `isForeground=true` |
 | M8 | ✅ | As a lone worker, I want to see status, cancel a false alarm, press SOS and view history | `.\gradlew.bat :app:connectedDebugAndroidTest` | All pass |
 | M9 | ✅ | As a dispatcher, I want an alert with location and battery, and the worker to see my acknowledgement | `.\scripts\e2e.ps1` | `E2E PASS (4/4)` |
-| M10 | ⏳ | As a device integrator, I want the app installed as a privileged system app, so it can read the device serial | `.\aosp\install-privapp.ps1; .\aosp\verify-privapp.ps1` | Path under `/system/priv-app/`; permission `granted=true`; `deviceId` = `ro.serialno` |
-| M11 | ⬜ | As a lone worker, I want a hardware key to act as an SOS button | `.\aosp\remap-key.ps1; .\aosp\verify-key.ps1` | New KeyLayoutFile loaded; key logs `KEYCODE_F12`; volume unchanged |
+| M10 | ✅ | As a device integrator, I want the app installed as a privileged system app, so it can read the device serial | `.\aosp\install-privapp.ps1; .\aosp\verify-privapp.ps1` | Path under `/system/priv-app/`; permission `granted=true`; `deviceId` = `ro.serialno` |
+| M11 | ⏳ | As a lone worker, I want a hardware key to act as an SOS button | `.\aosp\remap-key.ps1; .\aosp\verify-key.ps1` | New KeyLayoutFile loaded; key logs `KEYCODE_F12`; volume unchanged |
 | M12 | ⬜ | As a lone worker, I want the SOS key to work when the device is locked | `.\aosp\install-overlay.ps1; .\aosp\verify-overlay.ps1` | Overlay enabled; locked-screen key press produces an `SOS` alert within 5 s |
 | M13 | ⬜ | As an employer, I want the device locked to SafeSignal (kiosk) | `.\aosp\set-device-owner.ps1; .\aosp\verify-kiosk.ps1` | App is Device Owner; `mLockTaskModeState=LOCKED`; HOME stays in `MainActivity` |
 | M14 | ⬜ | As a product owner, I want four KPIs measured by a script | `.\gradlew.bat :kpi:test` and `.\scripts\kpi-run.ps1 -Quick` | Tests pass; `build\kpi\summary.md` has 4 KPI rows with numbers |
