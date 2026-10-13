@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+### M7 — Foreground Monitoring Service & Fall Detection (2026-10-14)
+
+- Implemented data sources with test doubles: `SensorSource` (`AndroidSensorSource`, `ReplaySensorSource`), `LocationSource` (`AndroidLocationSource`, `FakeLocationSource`), `BatterySource` (`AndroidBatterySource`, `FakeBatterySource`).
+- Implemented `AlertController` singleton owning `StateFlow<AlertStateMachine.State>` and executing state-machine effects (`StartCountdown`, `StopCountdown`, `PersistAlert`, `SendAlert`, `StartAckPolling`, `LogKpi`).
+- Implemented `MonitorService` Android foreground service (`foregroundServiceType="location"`) with partial wake lock, continuous accelerometer collection, and ongoing notification reflecting real-time state.
+- Integrated pure Java `FallDetector` and `ManDownDetector` signal processing engines with `MonitorService`.
+- Implemented `SosKeyReceiver` and `FallInjectionReceiver` broadcast receivers for hardware SOS keys and test automation.
+- Wired dependency container in `SafeSignalApplication`.
+- Added automated verification script `scripts/inject-fall.ps1`.
+- Verified live end-to-end flow on AOSP API 34 emulator: `service isForeground=true`, `Monitoring -> Countdown(FALL)`, and `Countdown(FALL) -> Sending`.
+
 ### M6 — Data Layer & Reliable Outbox (2026-10-14)
 
 - Configured Room 2.8.5 with `kotlin-kapt` and `kotlin-metadata-jvm` in `:app`.
