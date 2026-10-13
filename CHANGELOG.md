@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+### M12 — Locked-Screen SOS & Runtime Resource Overlay (2026-10-14)
+
+- Configured `:overlay` Gradle module (`com.safesignal.overlay`) building an RRO APK targeting system framework `android`.
+- Added framework resource overlay values overriding `config_allowTheaterModeWakeFromKey` and wake key policies.
+- Updated `MainActivity.dispatchKeyEvent` to capture `KEYCODE_F12` hardware key events at top window priority.
+- Enhanced `AlertController` to safely transition into `Sending` when `SosPressed` is dispatched from `Idle` state by automatically starting the shift.
+- Implemented `aosp/install-overlay.ps1` to deploy `SafeSignalOverlay.apk` into `/vendor/overlay/` and enable it via `cmd overlay enable`.
+- Implemented `aosp/verify-overlay.ps1` verifying active overlay state in `cmd overlay list` and proving that pressing the hardware SOS key on a locked screen with PIN enabled produces an emergency SOS alert within 5 s (verified in 0.18 s).
+- Verified live on AOSP API 34 emulator with evidence saved in `docs/evidence/m12-runtime-overlay.txt`.
+
 ### M11 — Hardware Key Remapping (2026-10-14)
 
 - Authored `aosp/qwerty2.kl` mapping scancode 88 to `KEYCODE_F12` with the `WAKE` keyword, retaining `VOLUME_UP` (scancode 115) and `VOLUME_DOWN` (scancode 114).

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <bool name="config_allowTheaterModeWakeFromKey">true</bool>
+    <bool name="config_disableLockscreenByDefault">false</bool>
+    <bool name="config_wakeOnAssistKeyPress">true</bool>
+    <bool name="config_wakeOnBackKeyPress">true</bool>
+    <bool name="config_wakeOnDpadKeyPress">true</bool>
+</resources>
