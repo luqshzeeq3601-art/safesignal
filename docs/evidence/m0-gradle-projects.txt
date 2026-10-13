@@ -1,0 +1,28 @@
+
+Projects:
+
+------------------------------------------------------------
+Root project 'SafeSignal'
+------------------------------------------------------------
+
+Location: C:\Users\ZeeqRyz\Desktop\03_Software_and_Agents\SafeSignal Lone Worker Emergency Beacon
+
+Project hierarchy:
+
+Root project 'SafeSignal'
++--- Project ':bot'
++--- Project ':detection'
++--- Project ':kpi'
++--- Project ':protocol'
+\--- Project ':server'
+
+Project locations:
+
+project ':bot' - \bot
+project ':detection' - \detection
+project ':kpi' - \kpi
+project ':protocol' - \protocol
+project ':server' - \server
+
+To see a list of the tasks of a project, run gradlew <project-path>:tasks
+For example, try running gradlew :bot:tasks
