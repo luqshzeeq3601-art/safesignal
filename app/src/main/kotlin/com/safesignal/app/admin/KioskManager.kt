@@ -3,6 +3,7 @@ package com.safesignal.app.admin
 import android.app.Activity
 import android.app.admin.DevicePolicyManager
 import android.content.Context
+import android.os.Build
 import android.util.Log
 
 /**
@@ -26,10 +27,12 @@ class KioskManager(private val context: Context) {
 
         try {
             dpm.setLockTaskPackages(adminComponent, arrayOf(context.packageName))
-            dpm.setLockTaskFeatures(
-                adminComponent,
-                DevicePolicyManager.LOCK_TASK_FEATURE_NONE
-            )
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                dpm.setLockTaskFeatures(
+                    adminComponent,
+                    DevicePolicyManager.LOCK_TASK_FEATURE_NONE
+                )
+            }
             Log.i("SafeSignal", "KioskManager: Lock task packages configured successfully")
         } catch (e: Exception) {
             Log.e("SafeSignal", "KioskManager: Error configuring lock task packages: ${e.message}", e)

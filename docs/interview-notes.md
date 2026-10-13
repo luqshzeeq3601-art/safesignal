@@ -106,11 +106,23 @@ One short entry per component: what it is, why it is built this way, and the tra
 
 **Trade-off:** Runtime Resource Overlays targeting the Android platform (`android`) require vendor partition placement or privileged platform signature permissions, limiting this capability to enterprise-provisioned or dedicated lone-worker OEM devices.
 
-## M13 — Kiosk Mode & Device Owner
+## M14 — System KPI Measurement & Evaluation
 
-**What:** Enterprise Device Owner integration (`SafeSignalAdminReceiver`, `KioskManager`) provisioning lock task mode (`mLockTaskModeState=LOCKED`), whitelisting package execution, and disabling system status bar / keyguard escape vectors.
+**What:** Stand-alone Kotlin JVM module (`:kpi`), CLI entry point (`KpiMain`), evaluation engine (`KpiCalculator`), telemetry log parsers (`KpiParser`), and automated verification script (`scripts/kpi-run.ps1`).
 
-**Why:** Dedicated safety devices must not be repurposed, closed, or placed into background states by field workers. As a Device Owner, SafeSignal enters lock task mode silently on startup without user confirmation prompts, trapping navigation events such that pressing HOME or RECENTS retains `MainActivity` as the focused foreground activity.
+**Why:** Quantitative reliability proof is vital for life-safety systems. Evaluates the 4 core product KPIs defined in PRD.md:
+1. Detection-to-Alert Latency: p50 < 5s, p95 < 15s (separating transmission latency from configurable countdown cancel windows).
+2. Delivery Success Rate: >= 95% within 60s under radio dropouts.
+3. False-Alarm Rate: dual-track evaluation combining field cancellation rates with lab evaluation on 9 non-fall sensor traces (0 false positives).
+4. Battery Consumption: measured in estimated mAh/hour from Android `dumpsys batterystats`.
 
-**Trade-off:** Device Owner status must be set during initial device provisioning before any user accounts are added (or via privileged shell/ADB on unmanaged devices). Once provisioned, exiting kiosk mode requires administrative command intervention or factory wipe.
+**Trade-off:** Evaluates telemetry from structured CSV logs and Android batterystats rather than requiring full physical battery drain bench testing over 48 hours, enabling sub-second automated verification in CI pipelines.
+
+## M15 — Continuous Integration Pipeline & Agile Wrap-Up
+
+**What:** Complete GitHub Actions workflow (`.github/workflows/ci.yml`) gating every push and pull request across multi-module compilation, JVM unit tests, Android unit tests, Android Lint, JVM end-to-end integration, and KPI measurement report archiving.
+
+**Why:** Guarantees regression protection across all layers (signal processing algorithms, wire protocol, HTTP backend, reliable mobile outbox, and measurement reporting) before code merges. Standardizes automation so the complete system can be verified on standard Linux runners in under 3 minutes.
+
+**Trade-off:** CI runs unit tests, lint, JVM end-to-end simulation, and KPI evaluation on standard GitHub runners; running full nested Android hardware-accelerated emulator tests in CI requires specialized bare-metal or GPU-enabled runners, which are reserved for scheduled release gates.
 

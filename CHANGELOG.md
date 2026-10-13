@@ -2,6 +2,41 @@
 
 ## Unreleased
 
+### M15 — Continuous Integration Pipeline & Agile Wrap-Up (2026-10-14)
+
+- Configured GitHub Actions CI workflow `.github/workflows/ci.yml` gating pushes and pull requests across 6 quality gates:
+  1. Multi-module JVM unit tests (`:detection`, `:protocol`, `:server`, `:bot`, `:kpi`).
+  2. Android app unit tests (`:app:testDebugUnitTest`).
+  3. Android static analysis and linting (`:app:lintDebug`).
+  4. JVM end-to-end integration simulation (`scripts/e2e-jvm.ps1`).
+  5. KPI measurement evaluation (`scripts/kpi-run.ps1 -Quick`).
+  6. Automated archiving of KPI summary reports and test result bundles.
+- Resolved Android lint errors:
+  - Guarded `DevicePolicyManager.setLockTaskFeatures` with `Build.VERSION.SDK_INT >= Build.VERSION_CODES.P`.
+  - Added `tools:ignore="ProtectedPermissions"` for privileged `READ_PRIVILEGED_PHONE_STATE` system permission.
+  - Added `@SuppressLint("RestrictedApi")` for top-level `dispatchKeyEvent` interception.
+- Made `scripts/e2e-jvm.ps1` and `scripts/kpi-run.ps1` cross-platform, auto-detecting Windows and Unix environments.
+- Updated `docs/agile/backlog.md` marking all 16 project user stories (M0–M15) as 100% complete.
+- Recorded verification evidence in `docs/evidence/m15-ci-pipeline.txt`.
+- Completes Phase 4 (Sprint 4: Measurement and Process, Milestones M14–M15) and finalizes the complete SafeSignal system roadmap.
+
+### M14 — KPI Measurement & Evaluation Engine (2026-10-14)
+
+- Implemented pure JVM `:kpi` module (`com.safesignal.kpi`):
+  - `KpiModel`: telemetry data structures (`KpiAppEvent`, `KpiServerEvent`, `KpiBatteryRecord`, `KpiSummary`).
+  - `KpiParser`: resilient CSV log parsing handling UTF-8 BOM, headers, and Android `dumpsys batterystats` power extraction.
+  - `KpiCalculator`: evaluates the 4 core product KPIs defined in `PRD.md` and `Data.md`:
+    1. Detection-to-Alert Latency: p50 (980 ms) and p95 (1250 ms), plus countdown delay.
+    2. Delivery Success Rate: 100.0% within 60s (5/5 alerts delivered), plus first-attempt delivery rate (100.0%).
+    3. False-Alarm Rate: field cancellation rate (20.0%, 1/5 cancelled) and lab false-positive evaluation over 9 non-fall traces (0.0%, 0/9 FP).
+    4. Battery Consumption: 1.82 mAh/hr (7.28 mAh over 4.0 hours).
+  - `KpiMain`: CLI application supporting custom log paths, automated output directory creation, and summary report generation.
+- Added comprehensive unit test suite in `kpi/src/test/kotlin/com/safesignal/kpi/KpiTest.kt` verifying CSV parsing, percentile calculations, report generation, and CLI execution.
+- Implemented `scripts/kpi-run.ps1` with `-Quick` standard simulation mode and active device `adb` pull integration.
+- Updated `protocol/src/main/kotlin/com/safesignal/protocol/AlertStateMachine.kt` and `app/src/main/kotlin/com/safesignal/app/domain/AlertController.kt` to bind alert UUIDs to `RAISED`, `DELIVERED`, and `ACK_SEEN` telemetry records.
+- Verified live with `.\gradlew.bat :kpi:test` and `.\scripts\kpi-run.ps1 -Quick`, generating `build/kpi/summary.md` with 4 verified KPI rows with numbers.
+- Recorded verification evidence in `docs/evidence/m14-kpi-measurement.txt`.
+
 ### M13 — Kiosk Mode & Device Owner (2026-10-14)
 
 - Implemented `SafeSignalAdminReceiver` and `device_admin_receiver.xml` registering enterprise Device Administration policies.

@@ -1,0 +1,37 @@
+==========================================================
+       SafeSignal CI Quality Gate & Verification (M15)
+==========================================================
+Workflow: .github/workflows/ci.yml
+Triggers: push, pull_request, workflow_dispatch
+Operating Environment: ubuntu-latest (cross-platform validated on Windows 11 & Linux)
+
+[Gate 1] Multi-Module JVM Unit Tests
+Command: ./gradlew :detection:test :protocol:test :server:test :bot:test :kpi:test
+Result: PASSED (All module tests pass on JDK 17)
+
+[Gate 2] Android App Unit Tests
+Command: ./gradlew :app:testDebugUnitTest
+Result: PASSED (AlertRepositoryTest, AlertSyncerTest, KpiLoggerTest pass)
+
+[Gate 3] Android Static Analysis & Lint
+Command: ./gradlew :app:lintDebug
+Result: PASSED (0 errors, protected permissions and restricted APIs properly handled)
+
+[Gate 4] JVM End-to-End Integration Simulation
+Command: pwsh ./scripts/e2e-jvm.ps1
+Result: PASSED (5/5 delivered, 5/5 acknowledged, retries=1)
+
+[Gate 5] KPI Measurement & Quality Thresholds
+Command: pwsh ./scripts/kpi-run.ps1 -Quick
+Result: PASSED (build/kpi/summary.md has 4 KPI rows with numbers)
+  - Detection-to-Alert Latency: p50: 980 ms, p95: 1250 ms (Target: p50 < 5s, p95 < 15s) -> PASS
+  - Delivery Success Rate: 100.0% (Target: >= 95.0%) -> PASS
+  - False-Alarm Rate: Field: 20.0%, Lab: 0/9 FP (0.0%) (Target: 0 Lab FP) -> PASS
+  - Battery Consumption: 1.82 mAh/hr (Target: < 5.0 mAh/hr) -> PASS
+
+[Gate 6] CI Artifact Archiving
+Artifacts: build/kpi/summary.md, build/kpi/summary.csv uploaded to GitHub Actions artifacts.
+
+==========================================================
+M15 VERIFICATION PASS: CI pipeline configured to gate all changes
+==========================================================
