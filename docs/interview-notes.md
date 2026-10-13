@@ -89,3 +89,12 @@ One short entry per component: what it is, why it is built this way, and the tra
 **Why:** Dedicated enterprise and lone-worker devices require immutable hardware identification to bind alerts to physical inventory rather than ephemeral software IDs. Android 10+ restricts `Build.getSerial()` to privileged apps with `READ_PRIVILEGED_PHONE_STATE`. Granting this via AOSP `/system/etc/permissions/` allows zero-touch device identity binding on custom ROMs.
 
 **Trade-off:** Placing an application in `/system/priv-app` requires root access, partition remount (`overlayfs`), and matching signature/allowlist policies during system integration, making development iterations slightly longer than standard user-space APK sideloading.
+
+## M11 — Hardware Key Remapping
+
+**What:** Custom KeyLayoutFile (`qwerty2.kl`) installed in `/vendor/usr/keylayout/` and `/system/usr/keylayout/` remapping physical scancode 88 to `KEYCODE_F12` with the `WAKE` flag, configured via `/system/usr/idc/qwerty2.idc`.
+
+**Why:** Lone workers in distress, wearers of thick gloves, or workers in low-visibility situations cannot rely on capacitive touch screens to trigger an SOS. Dedicated ruggedized devices feature dedicated mechanical push-to-talk / emergency buttons. Remapping an existing hardware key at the Linux EventHub level via `.kl` translates the key before user space receives it while preserving standard audio volume keys (`VOLUME_UP`, `VOLUME_DOWN`).
+
+**Trade-off:** Linux input remapping via `.kl` files is device-driver specific and requires custom system ROM packaging or vendor partition modification, making it unportable across arbitrary consumer handsets without root access.
+

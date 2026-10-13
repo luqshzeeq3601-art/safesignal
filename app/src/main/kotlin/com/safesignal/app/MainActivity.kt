@@ -31,6 +31,17 @@ import com.safesignal.app.ui.StatusViewModel
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O_MR1) {
+            setShowWhenLocked(true)
+            setTurnScreenOn(true)
+        } else {
+            @Suppress("DEPRECATION")
+            window.addFlags(
+                android.view.WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
+                android.view.WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
+            )
+        }
+
         setContent {
             MaterialTheme {
                 Surface(
@@ -41,6 +52,18 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    override fun onKeyDown(keyCode: Int, event: android.view.KeyEvent?): Boolean {
+        android.util.Log.i("SafeSignal", "onKeyDown: keyCode=$keyCode (${android.view.KeyEvent.keyCodeToString(keyCode)})")
+        if (keyCode == android.view.KeyEvent.KEYCODE_F12) {
+            android.util.Log.i("SafeSignal", "Hardware SOS key pressed: KEYCODE_F12")
+            SafeSignalApplication.instance.alertController.processEvent(
+                com.safesignal.protocol.AlertStateMachine.Event.SosPressed(java.util.UUID.randomUUID().toString())
+            )
+            return true
+        }
+        return super.onKeyDown(keyCode, event)
     }
 }
 
