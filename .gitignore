@@ -1,0 +1,18 @@
+.gradle/
+build/
+local.properties
+.kotlin/
+*.iml
+.idea/
+captures/
+*.apk
+*.aab
+*.jks
+*.keystore
+.env
+
+# Runtime output
+alerts.jsonl
+server_events.csv
+kpi_events.csv
+battery.csv
