@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+### M2 — Protocol & State Machine (2026-10-13)
+
+- Implemented shared Kotlin serialization wire models (`AlertMessage`, `AlertRecord`, `AckRequest`, `LocationPayload`).
+- Implemented pure `AlertStateMachine` covering the complete lone worker emergency lifecycle and effects.
+- Implemented `RetryPolicy` for exponential backoff and retry scheduling.
+- Implemented `AlertApi` with Ktor HTTP client wrapper and engine injection.
+- Verified exact JSON compatibility against `Data.md` specification and tested all state transitions with unit tests.
+
 ### M1 — Detection (2026-10-13)
 
 - Implemented pure Java `:detection` module (`AccelSample`, `DetectionEvent`, `DetectorConfig`).
