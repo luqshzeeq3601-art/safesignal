@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+### M3 — Dispatcher Server & Console (2026-10-14)
+
+- Implemented `:server` with Ktor Netty, serving REST endpoints `/api/alerts`, `/api/alerts/{id}/ack`, and `/health`.
+- Implemented thread-safe `AlertStore` supporting idempotent duplicate alert ingestion and append-only `alerts.jsonl`.
+- Implemented `server_events.csv` KPI logging tracking `RECEIVED`, `DUPLICATE`, and `ACKED` events.
+- Created static single-page dispatcher console web dashboard (`/`) with auto-polling (2s interval) and one-click alert acknowledgement.
+- Verified live server with unit tests and curl verification commands.
+
 ### M2 — Protocol & State Machine (2026-10-13)
 
 - Implemented shared Kotlin serialization wire models (`AlertMessage`, `AlertRecord`, `AckRequest`, `LocationPayload`).

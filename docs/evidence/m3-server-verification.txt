@@ -1,0 +1,105 @@
+=== SafeSignal M3 Server Verification ===
+
+1. Health Check (GET /health):
+OK
+
+2. POST /api/alerts:
+{
+    "alert": {
+        "protocolVersion": 1,
+        "alertId": "3f1c9c0e-6c1e-4f0e-9d53-0a6c5b1f2e77",
+        "workerId": "W-1042",
+        "deviceId": "EMULATOR34X1X2X0",
+        "type": "FALL",
+        "raisedAtEpochMs": 1791878400000,
+        "location": {
+            "lat": 3.139,
+            "lon": 101.6869,
+            "accuracyM": 5.0,
+            "fixAtEpochMs": 1791878398000
+        },
+        "batteryPercent": 87,
+        "attempt": 1
+    },
+    "status": "RECEIVED",
+    "receivedAtEpochMs": 1791907804865,
+    "acknowledgedAtEpochMs": null,
+    "acknowledgedBy": null
+}
+
+3. GET /api/alerts (Dispatcher console polling):
+[
+    {
+        "alert": {
+            "protocolVersion": 1,
+            "alertId": "3f1c9c0e-6c1e-4f0e-9d53-0a6c5b1f2e77",
+            "workerId": "W-1042",
+            "deviceId": "EMULATOR34X1X2X0",
+            "type": "FALL",
+            "raisedAtEpochMs": 1791878400000,
+            "location": {
+                "lat": 3.139,
+                "lon": 101.6869,
+                "accuracyM": 5.0,
+                "fixAtEpochMs": 1791878398000
+            },
+            "batteryPercent": 87,
+            "attempt": 1
+        },
+        "status": "RECEIVED",
+        "receivedAtEpochMs": 1791907804865,
+        "acknowledgedAtEpochMs": null,
+        "acknowledgedBy": null
+    }
+]
+
+4. POST /api/alerts/{id}/ack (Dispatcher acknowledgement):
+{
+    "alert": {
+        "protocolVersion": 1,
+        "alertId": "3f1c9c0e-6c1e-4f0e-9d53-0a6c5b1f2e77",
+        "workerId": "W-1042",
+        "deviceId": "EMULATOR34X1X2X0",
+        "type": "FALL",
+        "raisedAtEpochMs": 1791878400000,
+        "location": {
+            "lat": 3.139,
+            "lon": 101.6869,
+            "accuracyM": 5.0,
+            "fixAtEpochMs": 1791878398000
+        },
+        "batteryPercent": 87,
+        "attempt": 1
+    },
+    "status": "ACKNOWLEDGED",
+    "receivedAtEpochMs": 1791907804865,
+    "acknowledgedAtEpochMs": 1791907825248,
+    "acknowledgedBy": "D-1"
+}
+
+5. GET /api/alerts/{id} (Worker app ack poll):
+{
+    "alert": {
+        "protocolVersion": 1,
+        "alertId": "3f1c9c0e-6c1e-4f0e-9d53-0a6c5b1f2e77",
+        "workerId": "W-1042",
+        "deviceId": "EMULATOR34X1X2X0",
+        "type": "FALL",
+        "raisedAtEpochMs": 1791878400000,
+        "location": {
+            "lat": 3.139,
+            "lon": 101.6869,
+            "accuracyM": 5.0,
+            "fixAtEpochMs": 1791878398000
+        },
+        "batteryPercent": 87,
+        "attempt": 1
+    },
+    "status": "ACKNOWLEDGED",
+    "receivedAtEpochMs": 1791907804865,
+    "acknowledgedAtEpochMs": 1791907825248,
+    "acknowledgedBy": "D-1"
+}
+
+6. Dispatcher Console Web UI (GET /):
+HTTP 200 OK (Served console/index.html)

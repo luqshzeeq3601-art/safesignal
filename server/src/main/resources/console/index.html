@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SafeSignal — Dispatcher Console</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --border: #334155;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --primary: #38bdf8;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --success: #10b981;
+      --ack: #64748b;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 1.5rem;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 1rem;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: -0.025em;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .status-pill {
+      font-size: 0.75rem;
+      padding: 0.25rem 0.5rem;
+      border-radius: 9999px;
+      background: rgba(16, 185, 129, 0.2);
+      color: var(--success);
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+    .status-pill::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      background: currentColor;
+      border-radius: 50%;
+    }
+
+    .stats-bar {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .stat-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 0.5rem;
+      padding: 1rem;
+    }
+
+    .stat-card .label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.25rem;
+    }
+
+    .stat-card .value {
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    .table-container {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 0.5rem;
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.875rem;
+    }
+
+    th {
+      background: rgba(15, 23, 42, 0.6);
+      padding: 0.75rem 1rem;
+      color: var(--text-muted);
+      font-weight: 600;
+      border-bottom: 1px solid var(--border);
+    }
+
+    td {
+      padding: 0.85rem 1rem;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+
+    tr:last-child td { border-bottom: none; }
+    tr:hover { background: rgba(255, 255, 255, 0.02); }
+
+    .badge {
+      display: inline-block;
+      padding: 0.2rem 0.5rem;
+      border-radius: 0.25rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .badge-FALL { background: rgba(239, 68, 68, 0.2); color: var(--danger); border: 1px solid var(--danger); }
+    .badge-SOS { background: rgba(239, 68, 68, 0.3); color: #fca5a5; border: 1px solid #f87171; }
+    .badge-MAN_DOWN { background: rgba(245, 158, 11, 0.2); color: var(--warning); border: 1px solid var(--warning); }
+
+    .badge-RECEIVED { background: rgba(56, 189, 248, 0.2); color: var(--primary); }
+    .badge-ACKNOWLEDGED { background: rgba(16, 185, 129, 0.2); color: var(--success); }
+
+    .btn-ack {
+      background: var(--danger);
+      color: white;
+      border: none;
+      padding: 0.4rem 0.75rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      border-radius: 0.25rem;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .btn-ack:hover { background: #dc2626; }
+    .btn-ack:disabled { background: var(--border); color: var(--text-muted); cursor: not-allowed; }
+
+    .empty-state {
+      padding: 3rem 1rem;
+      text-align: center;
+      color: var(--text-muted);
+    }
+
+    .pulse {
+      animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1>🚨 SafeSignal Dispatcher Console</h1>
+      <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">
+        Lone Worker Emergency Monitoring & Rapid Acknowledgement
+      </p>
+    </div>
+    <div style="display: flex; gap: 1rem; align-items: center;">
+      <span id="connection-pill" class="status-pill">Connected (Polling 2s)</span>
+      <span id="clock" style="font-size: 0.85rem; color: var(--text-muted);">--:--:--</span>
+    </div>
+  </header>
+
+  <div class="stats-bar">
+    <div class="stat-card">
+      <div class="label">Total Alerts</div>
+      <div id="stat-total" class="value">0</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">Pending Action</div>
+      <div id="stat-pending" class="value" style="color: var(--danger);">0</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">Acknowledged</div>
+      <div id="stat-acked" class="value" style="color: var(--success);">0</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">Last Received</div>
+      <div id="stat-last" class="value" style="font-size: 1rem; font-weight: normal; margin-top: 0.25rem;">None</div>
+    </div>
+  </div>
+
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Time</th>
+          <th>Type</th>
+          <th>Worker ID</th>
+          <th>Device</th>
+          <th>Location</th>
+          <th>Battery</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="alerts-tbody">
+        <tr>
+          <td colspan="8" class="empty-state">Loading alerts...</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    function updateClock() {
+      document.getElementById('clock').textContent = new Date().toLocaleTimeString();
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    async function pollAlerts() {
+      try {
+        const res = await fetch('/api/alerts');
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const alerts = await res.json();
+        renderAlerts(alerts);
+        document.getElementById('connection-pill').textContent = 'Connected (Polling 2s)';
+        document.getElementById('connection-pill').style.color = 'var(--success)';
+      } catch (err) {
+        document.getElementById('connection-pill').textContent = 'Connection Error';
+        document.getElementById('connection-pill').style.color = 'var(--danger)';
+      }
+    }
+
+    function renderAlerts(alerts) {
+      const tbody = document.getElementById('alerts-tbody');
+      const total = alerts.length;
+      const pending = alerts.filter(a => a.status === 'RECEIVED').length;
+      const acked = alerts.filter(a => a.status === 'ACKNOWLEDGED').length;
+
+      document.getElementById('stat-total').textContent = total;
+      document.getElementById('stat-pending').textContent = pending;
+      document.getElementById('stat-acked').textContent = acked;
+
+      if (total > 0) {
+        const last = new Date(alerts[0].receivedAtEpochMs);
+        document.getElementById('stat-last').textContent = last.toLocaleTimeString();
+      }
+
+      if (alerts.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" class="empty-state">No emergency alerts recorded. All lone workers safe.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = alerts.map(record => {
+        const a = record.alert;
+        const timeStr = new Date(record.receivedAtEpochMs).toLocaleTimeString();
+        const loc = a.location 
+          ? `${a.location.lat.toFixed(4)}, ${a.location.lon.toFixed(4)} (±${a.location.accuracyM ?? 0}m)`
+          : '<span style="color:var(--text-muted)">No Fix</span>';
+        const isReceived = record.status === 'RECEIVED';
+
+        return `
+          <tr style="${isReceived ? 'background: rgba(239,68,68,0.08);' : ''}">
+            <td style="font-weight: 600;">${timeStr}</td>
+            <td><span class="badge badge-${a.type}">${a.type}</span></td>
+            <td><strong>${escapeHtml(a.workerId)}</strong></td>
+            <td style="color: var(--text-muted); font-size: 0.8rem;">${escapeHtml(a.deviceId)}</td>
+            <td>${loc}</td>
+            <td>${a.batteryPercent}%</td>
+            <td><span class="badge badge-${record.status}">${record.status}</span></td>
+            <td>
+              ${isReceived ? `
+                <button class="btn-ack pulse" onclick="acknowledgeAlert('${a.alertId}')">
+                  Ack
+                </button>
+              ` : `
+                <span style="font-size: 0.75rem; color: var(--text-muted);">
+                  By ${escapeHtml(record.acknowledgedBy || 'Dispatch')}
+                </span>
+              `}
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    async function acknowledgeAlert(alertId) {
+      try {
+        const res = await fetch(`/api/alerts/${encodeURIComponent(alertId)}/ack`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ dispatcher: 'D-CONSOLE' })
+        });
+        if (res.ok) {
+          pollAlerts();
+        } else {
+          alert('Failed to acknowledge alert.');
+        }
+      } catch (e) {
+        alert('Network error acknowledging alert.');
+      }
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    // Initial poll + 2s recurring interval
+    pollAlerts();
+    setInterval(pollAlerts, 2000);
+  </script>
+</body>
+</html>
