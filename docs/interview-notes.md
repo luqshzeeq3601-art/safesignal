@@ -33,3 +33,11 @@ One short entry per component: what it is, why it is built this way, and the tra
 **Why:** Sharing data models directly with `:protocol` eliminates serialization drift. The client-generated `alertId` makes retried POSTs idempotent (returning HTTP 200 on duplicate vs 201 on new). A zero-dependency vanilla JS console with 2-second polling delivers immediate dispatcher visibility and acknowledgement without complex WebSocket infrastructure.
 
 **Trade-off:** 2-second HTTP polling incurs periodic requests rather than push events, but operates reliably across constrained networks without stateful socket maintenance.
+
+## M4 — Fake Worker Bot & JVM End-to-End
+
+**What:** JVM fake worker (`:bot`) CLI simulating emergency raises, backoff retries, and ack polling, paired with `scripts/e2e-jvm.ps1`.
+
+**Why:** Proves that alerts flow from worker to server and through acknowledgement with zero Android dependencies. Validates network retry survival during transient outages and verifies end-to-end integration in seconds on standard CI machines.
+
+**Trade-off:** Simulates radio link failures through HTTP failure responses and backoff delays rather than actual cellular modem disconnection.

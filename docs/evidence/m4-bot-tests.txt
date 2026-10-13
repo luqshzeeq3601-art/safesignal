@@ -1,0 +1,64 @@
+> Task :bot:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :protocol:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :protocol:compileKotlin UP-TO-DATE
+> Task :protocol:compileJava NO-SOURCE
+> Task :protocol:processResources NO-SOURCE
+> Task :protocol:classes UP-TO-DATE
+> Task :protocol:jar UP-TO-DATE
+> Task :bot:compileKotlin UP-TO-DATE
+> Task :bot:compileJava NO-SOURCE
+> Task :bot:processResources NO-SOURCE
+> Task :bot:classes UP-TO-DATE
+> Task :bot:jar UP-TO-DATE
+> Task :bot:compileTestKotlin UP-TO-DATE
+> Task :bot:compileTestJava NO-SOURCE
+> Task :bot:processTestResources NO-SOURCE
+> Task :bot:testClasses UP-TO-DATE
+
+> Task :bot:test
+
+WorkerBotTest > testRunShiftProducesAccurateReport STANDARD_OUT
+    [Bot W-BOT-1] Attempt 1 failed (simulated network outage). Retrying in 400ms...
+    [Bot W-BOT-1] Dispatching alert 3da405a0-c77d-4d01-b943-f74658684ee7 (type=FALL, attempt=2)...
+    [Bot W-BOT-1] Alert 3da405a0-c77d-4d01-b943-f74658684ee7 delivered successfully on attempt 2.
+    [Bot W-BOT-1] Polling for acknowledgement on alert 3da405a0-c77d-4d01-b943-f74658684ee7...
+    [Bot W-BOT-1] Alert 3da405a0-c77d-4d01-b943-f74658684ee7 ACKNOWLEDGED by D-1!
+    [Bot W-BOT-1] Dispatching alert b44d5a7a-4ba4-41ea-af24-5e5efebcfa9c (type=MAN_DOWN, attempt=1)...
+    [Bot W-BOT-1] Alert b44d5a7a-4ba4-41ea-af24-5e5efebcfa9c delivered successfully on attempt 1.
+    [Bot W-BOT-1] Polling for acknowledgement on alert b44d5a7a-4ba4-41ea-af24-5e5efebcfa9c...
+    [Bot W-BOT-1] Alert b44d5a7a-4ba4-41ea-af24-5e5efebcfa9c ACKNOWLEDGED by D-1!
+    [Bot W-BOT-1] Dispatching alert 5cf18bd9-10f5-46d0-a244-1cc3c1ad0eac (type=SOS, attempt=1)...
+    [Bot W-BOT-1] Alert 5cf18bd9-10f5-46d0-a244-1cc3c1ad0eac delivered successfully on attempt 1.
+    [Bot W-BOT-1] Polling for acknowledgement on alert 5cf18bd9-10f5-46d0-a244-1cc3c1ad0eac...
+    [Bot W-BOT-1] Alert 5cf18bd9-10f5-46d0-a244-1cc3c1ad0eac ACKNOWLEDGED by D-1!
+
+WorkerBotTest > testRunShiftProducesAccurateReport PASSED
+
+WorkerBotTest > testAlertDeliveryAndAckPollingSuccess STANDARD_OUT
+    [Bot W-BOT-1] Dispatching alert test-alert-1 (type=FALL, attempt=1)...
+    [Bot W-BOT-1] Alert test-alert-1 delivered successfully on attempt 1.
+    [Bot W-BOT-1] Polling for acknowledgement on alert test-alert-1...
+    [Bot W-BOT-1] Alert test-alert-1 ACKNOWLEDGED by Dispatcher!
+
+WorkerBotTest > testAlertDeliveryAndAckPollingSuccess PASSED
+
+WorkerBotTest > testRetryOnInitialFailureThenSucceeds STANDARD_OUT
+    [Bot W-BOT-1] Dispatching alert retry-alert (type=SOS, attempt=1)...
+    [Bot W-BOT-1] Attempt 1 failed (Expected response body of the type 'class com.safesignal.protocol.AlertRecord (Kotlin reflection is not available)' but was 'class io.ktor.utils.io.SourceByteReadChannel (Kotlin reflection is not available)'
+    In response from `http://localhost:8080/api/alerts`
+    Response status `503 Service Unavailable`
+    Response header `ContentType: null` 
+    Request header `Accept: application/json`
+
+    You can read how to resolve NoTransformationFoundException at FAQ: 
+    https://ktor.io/docs/faq.html#no-transformation-found-exception). Retrying in 20ms...
+    [Bot W-BOT-1] Dispatching alert retry-alert (type=SOS, attempt=2)...
+    [Bot W-BOT-1] Alert retry-alert delivered successfully on attempt 2.
+    [Bot W-BOT-1] Polling for acknowledgement on alert retry-alert...
+    [Bot W-BOT-1] Alert retry-alert ACKNOWLEDGED by Dispatcher!
+
+WorkerBotTest > testRetryOnInitialFailureThenSucceeds PASSED
+
+BUILD SUCCESSFUL in 4s
+6 actionable tasks: 1 executed, 5 up-to-date
+Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.8.1/userguide/configuration_cache_enabling.html
