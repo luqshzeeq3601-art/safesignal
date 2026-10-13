@@ -16,5 +16,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "SafeSignal"
 
-include(":detection", ":protocol", ":server", ":bot", ":kpi")
-// :app and :overlay are added in M5, once the Android SDK is installed.
+include(":detection", ":protocol", ":server", ":bot", ":kpi", ":app", ":overlay")
