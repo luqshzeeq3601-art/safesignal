@@ -49,3 +49,12 @@ One short entry per component: what it is, why it is built this way, and the tra
 **Why:** Establishes the real Android runtime and device verification pipeline without breaking JVM test speed. An AOSP image (without Google Play Services) mirrors target ruggedized enterprise devices and boots quickly.
 
 **Trade-off:** Android SDK compilation and emulator booting add toolchain weight compared to pure JVM modules, but are essential for sensor listeners, foreground services, and privileged system app testing in subsequent milestones.
+
+## M6 — Data Layer & Reliable Outbox
+
+**What:** Room database (`SafeSignalDatabase`, `AlertDao`, `AlertEntity`), repository (`AlertRepository`), reliable outbox syncer (`AlertSyncer`), and telemetry logging (`FileKpiLogger`).
+
+**Why:** Emergency alerts must survive process death and poor radio coverage. The Room outbox stores alerts with `status = PENDING`. `AlertSyncer` applies exponential backoff retry and polls for dispatcher acknowledgement. Using fake clocks and Ktor's `MockEngine` allows full retry and outage verification on the JVM in milliseconds, while `AlertDaoTest` instrumented tests validate SQLite queries on the live AOSP emulator.
+
+**Trade-off:** Running the retry loop in the service process instead of WorkManager minimizes latency and simplifies testing with simulated time, but requires the outbox to be re-scanned when the process or service restarts.
+
