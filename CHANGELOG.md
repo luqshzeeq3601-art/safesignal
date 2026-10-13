@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+### M6 — Data Layer & Reliable Outbox (2026-10-14)
+
+- Configured Room 2.8.5 with `kotlin-kapt` and `kotlin-metadata-jvm` in `:app`.
+- Implemented `AlertEntity` representing the `alerts` Room table with full lifecycle audit columns and outbox state (`PENDING`, `SENT`, `ACKNOWLEDGED`, `CANCELLED`).
+- Implemented `AlertDao` with CRUD, outbox query (`getPendingAlerts`), and reactive `Flow` emissions.
+- Implemented `SafeSignalDatabase` Room database with in-memory test factory.
+- Implemented `AlertRepository` managing local persistence, status transitions, and outbox operations.
+- Implemented `AlertSyncer` coordinating outbox draining, exponential backoff retries, and dispatcher acknowledgement polling.
+- Implemented `FileKpiLogger` and `InMemoryKpiLogger` tracking structured telemetry events (`SEND_ATTEMPT`, `DELIVERED`, `ACK_SEEN`, `RETRY_EXHAUSTED`).
+- Added JVM unit tests (`AlertRepositoryTest`, `AlertSyncerTest`, `KpiLoggerTest`) verifying backoff retries and ack polling with fake clock and Ktor `MockEngine`.
+- Added instrumented Android tests (`AlertDaoTest`) passing on live AOSP API 34 emulator verifying SQLite database operations.
+
 ### M5 — Android Toolchain & App Skeleton (2026-10-14)
 
 - Configured Android SDK API 34 (`platforms/android-34`, `build-tools/34.0.0`, `emulator`, AOSP `x86_64` system image).
