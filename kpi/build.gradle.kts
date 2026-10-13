@@ -11,6 +11,10 @@ application {
     mainClass = "com.safesignal.kpi.KpiMainKt"
 }
 
+tasks.named<JavaExec>("run") {
+    workingDir = rootProject.projectDir
+}
+
 dependencies {
     testImplementation(libs.junit)
     testImplementation(libs.kotlin.test.junit)

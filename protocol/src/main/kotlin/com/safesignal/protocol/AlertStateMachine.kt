@@ -44,7 +44,7 @@ object AlertStateMachine {
         data class ScheduleRetry(val alertId: String, val nextAttempt: Int, val delayMs: Long) : Effect
         data class StartAckPolling(val alertId: String) : Effect
         data class StopAckPolling(val alertId: String) : Effect
-        data class LogKpi(val eventName: String, val detail: String = "") : Effect
+        data class LogKpi(val eventName: String, val detail: String = "", val alertId: String = "") : Effect
     }
 
     data class Transition(
@@ -86,7 +86,7 @@ object AlertStateMachine {
                     effects = listOf(
                         Effect.PersistAlert(event.alertId, AlertType.SOS, "PENDING"),
                         Effect.SendAlert(event.alertId, 1),
-                        Effect.LogKpi("RAISED", "SOS")
+                        Effect.LogKpi("RAISED", "SOS", alertId = event.alertId)
                     )
                 )
 
@@ -112,7 +112,7 @@ object AlertStateMachine {
                         Effect.StopCountdown,
                         Effect.PersistAlert(event.alertId, currentState.type, "PENDING"),
                         Effect.SendAlert(event.alertId, 1),
-                        Effect.LogKpi("RAISED", currentState.type.name)
+                        Effect.LogKpi("RAISED", currentState.type.name, alertId = event.alertId)
                     )
                 )
 
@@ -122,7 +122,7 @@ object AlertStateMachine {
                         Effect.StopCountdown,
                         Effect.PersistAlert(event.alertId, AlertType.SOS, "PENDING"),
                         Effect.SendAlert(event.alertId, 1),
-                        Effect.LogKpi("RAISED", "SOS")
+                        Effect.LogKpi("RAISED", "SOS", alertId = event.alertId)
                     )
                 )
 
@@ -138,7 +138,7 @@ object AlertStateMachine {
                             effects = listOf(
                                 Effect.PersistAlert(currentState.alertId, currentState.type, "SENT"),
                                 Effect.StartAckPolling(currentState.alertId),
-                                Effect.LogKpi("DELIVERED", currentState.alertId)
+                                Effect.LogKpi("DELIVERED", currentState.alertId, alertId = currentState.alertId)
                             )
                         )
                     } else {
@@ -191,7 +191,7 @@ object AlertStateMachine {
                             effects = listOf(
                                 Effect.PersistAlert(currentState.alertId, currentState.type, "ACKNOWLEDGED", event.acknowledgedBy),
                                 Effect.StopAckPolling(currentState.alertId),
-                                Effect.LogKpi("ACK_SEEN", currentState.alertId)
+                                Effect.LogKpi("ACK_SEEN", currentState.alertId, alertId = currentState.alertId)
                             )
                         )
                     } else {
