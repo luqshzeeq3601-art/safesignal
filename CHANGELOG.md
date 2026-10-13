@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+### M11 — Hardware Key Remapping (2026-10-14)
+
+- Authored `aosp/qwerty2.kl` mapping scancode 88 to `KEYCODE_F12` with the `WAKE` keyword, retaining `VOLUME_UP` (scancode 115) and `VOLUME_DOWN` (scancode 114).
+- Configured input device configuration `qwerty2.idc` setting `keyboard.layout = qwerty2`.
+- Updated `MainActivity.onKeyDown` to intercept `KEYCODE_F12`, dispatching `AlertStateMachine.Event.SosPressed` directly to `AlertController`.
+- Added window flags (`setShowWhenLocked`, `setTurnScreenOn`) to ensure `MainActivity` receives focus when the device is active.
+- Implemented `aosp/remap-key.ps1` to install `qwerty2.kl` into `/vendor/usr/keylayout/` and `/system/usr/keylayout/` and restart the Android runtime.
+- Implemented `aosp/verify-key.ps1` verifying `KeyLayoutFile` loaded in `dumpsys input`, `KEYCODE_F12` logged upon key event injection, and standard volume key operations left unaffected.
+- Verified live on AOSP API 34 emulator with evidence saved in `docs/evidence/m11-key-remap.txt`.
+
 ### M10 — Privileged System App & Device Serial (2026-10-14)
 
 - Configured privileged permission `android.permission.READ_PRIVILEGED_PHONE_STATE` in `app/src/main/AndroidManifest.xml`.
