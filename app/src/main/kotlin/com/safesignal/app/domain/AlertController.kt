@@ -51,7 +51,21 @@ class AlertController(
 
     @Synchronized
     fun processEvent(event: AlertStateMachine.Event) {
-        val oldState = _state.value
+        var oldState = _state.value
+        if (oldState is AlertStateMachine.State.Idle && event is AlertStateMachine.Event.SosPressed) {
+            val startShiftTransition = AlertStateMachine.transition(
+                currentState = oldState,
+                event = AlertStateMachine.Event.StartShift,
+                retryPolicy = retryPolicy,
+                countdownSeconds = countdownSeconds
+            )
+            _state.value = startShiftTransition.state
+            for (eff in startShiftTransition.effects) {
+                executeEffect(eff)
+            }
+            oldState = startShiftTransition.state
+        }
+
         val transition = AlertStateMachine.transition(
             currentState = oldState,
             event = event,
@@ -90,6 +104,10 @@ class AlertController(
         } else if (old is AlertStateMachine.State.Countdown && new is AlertStateMachine.State.Sending) {
             logger(logTag, "Countdown(${old.type.name}) -> Sending")
             logger(logTag, "-> Sending")
+        } else if (new is AlertStateMachine.State.Sending) {
+            logger(logTag, "State: Sending (type=${new.type.name}, alertId=${new.alertId})")
+            logger(logTag, "-> Sending")
+            logger(logTag, "SOS alert produced: ${new.alertId}")
         } else if (new is AlertStateMachine.State.Sent) {
             logger(logTag, "-> Sent")
         } else if (new is AlertStateMachine.State.Acknowledged) {

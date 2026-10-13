@@ -54,6 +54,19 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    override fun dispatchKeyEvent(event: android.view.KeyEvent): Boolean {
+        if (event.keyCode == android.view.KeyEvent.KEYCODE_F12) {
+            if (event.action == android.view.KeyEvent.ACTION_DOWN) {
+                android.util.Log.i("SafeSignal", "Hardware SOS key pressed: KEYCODE_F12")
+                SafeSignalApplication.instance.alertController.processEvent(
+                    com.safesignal.protocol.AlertStateMachine.Event.SosPressed(java.util.UUID.randomUUID().toString())
+                )
+            }
+            return true
+        }
+        return super.dispatchKeyEvent(event)
+    }
+
     override fun onKeyDown(keyCode: Int, event: android.view.KeyEvent?): Boolean {
         android.util.Log.i("SafeSignal", "onKeyDown: keyCode=$keyCode (${android.view.KeyEvent.keyCodeToString(keyCode)})")
         if (keyCode == android.view.KeyEvent.KEYCODE_F12) {

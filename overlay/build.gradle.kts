@@ -1,5 +1,21 @@
-// Overlay module is pure XML Runtime Resource Overlay (wired in Phase 3 M12).
-// Kept minimal placeholder for Gradle configuration until M12.
 plugins {
-    `java-base`
+    alias(libs.plugins.android.application)
+}
+
+android {
+    namespace = "com.safesignal.overlay"
+    compileSdk = 34
+
+    defaultConfig {
+        applicationId = "com.safesignal.overlay"
+        minSdk = 26
+        targetSdk = 34
+        versionCode = 1
+        versionName = "1.0.0"
+    }
+
+    lint {
+        abortOnError = false
+        checkReleaseBuilds = false
+    }
 }

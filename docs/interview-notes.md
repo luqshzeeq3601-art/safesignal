@@ -98,3 +98,10 @@ One short entry per component: what it is, why it is built this way, and the tra
 
 **Trade-off:** Linux input remapping via `.kl` files is device-driver specific and requires custom system ROM packaging or vendor partition modification, making it unportable across arbitrary consumer handsets without root access.
 
+## M12 — Locked-Screen SOS via Runtime Resource Overlay (RRO)
+
+**What:** Runtime Resource Overlay module (`:overlay`, `com.safesignal.overlay`) overriding framework-res configs (`config_allowTheaterModeWakeFromKey`), paired with `MainActivity` lockscreen occlusion flags (`setShowWhenLocked`, `setTurnScreenOn`) and top-level `dispatchKeyEvent` interception.
+
+**Why:** Emergency beacons must function instantly without requiring the user to wake, unlock, or enter credentials on the device. An RRO APK safely customizes Android OS framework behaviors without recompiling the monolithic Android OS codebase. Enabling key-wake policies and activity occlusion allows single-press SOS dispatch from sleep within 200 ms.
+
+**Trade-off:** Runtime Resource Overlays targeting the Android platform (`android`) require vendor partition placement or privileged platform signature permissions, limiting this capability to enterprise-provisioned or dedicated lone-worker OEM devices.
