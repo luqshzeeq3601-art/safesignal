@@ -61,6 +61,17 @@ class AlertController(
         _state.value = transition.state
         logTransition(oldState, transition.state)
 
+        if (oldState is AlertStateMachine.State.Countdown && event is AlertStateMachine.Event.CancelPressed) {
+            scope.launch {
+                val battery = batterySource.getBatteryPercent()
+                alertRepository.markCancelled(
+                    alertId = UUID.randomUUID().toString(),
+                    type = oldState.type,
+                    batteryPercent = battery
+                )
+            }
+        }
+
         for (effect in transition.effects) {
             executeEffect(effect)
         }
