@@ -105,3 +105,12 @@ One short entry per component: what it is, why it is built this way, and the tra
 **Why:** Emergency beacons must function instantly without requiring the user to wake, unlock, or enter credentials on the device. An RRO APK safely customizes Android OS framework behaviors without recompiling the monolithic Android OS codebase. Enabling key-wake policies and activity occlusion allows single-press SOS dispatch from sleep within 200 ms.
 
 **Trade-off:** Runtime Resource Overlays targeting the Android platform (`android`) require vendor partition placement or privileged platform signature permissions, limiting this capability to enterprise-provisioned or dedicated lone-worker OEM devices.
+
+## M13 — Kiosk Mode & Device Owner
+
+**What:** Enterprise Device Owner integration (`SafeSignalAdminReceiver`, `KioskManager`) provisioning lock task mode (`mLockTaskModeState=LOCKED`), whitelisting package execution, and disabling system status bar / keyguard escape vectors.
+
+**Why:** Dedicated safety devices must not be repurposed, closed, or placed into background states by field workers. As a Device Owner, SafeSignal enters lock task mode silently on startup without user confirmation prompts, trapping navigation events such that pressing HOME or RECENTS retains `MainActivity` as the focused foreground activity.
+
+**Trade-off:** Device Owner status must be set during initial device provisioning before any user accounts are added (or via privileged shell/ADB on unmanaged devices). Once provisioned, exiting kiosk mode requires administrative command intervention or factory wipe.
+

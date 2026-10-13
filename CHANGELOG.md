@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+### M13 — Kiosk Mode & Device Owner (2026-10-14)
+
+- Implemented `SafeSignalAdminReceiver` and `device_admin_receiver.xml` registering enterprise Device Administration policies.
+- Implemented `KioskManager` handling Device Policy Manager lock task whitelisting (`setLockTaskPackages`), status bar disabling (`setStatusBarDisabled`), keyguard suppression (`setKeyguardDisabled`), and lock task activation.
+- Configured `android:lockTaskMode="if_whitelisted"` in `app/src/main/AndroidManifest.xml` for `MainActivity`.
+- Updated `MainActivity` lifecycle (`onResume`, `onNewIntent`) to automatically trigger `kioskManager.startKiosk(this)` when active as Device Owner.
+- Implemented `aosp/set-device-owner.ps1` provisioning user 0 and activating SafeSignal as Device Owner via `dpm set-device-owner`.
+- Implemented `aosp/verify-kiosk.ps1` verifying Device Owner configuration in `dumpsys device_policy`, `mLockTaskModeState=LOCKED` in `dumpsys activity`, and HOME key containment where pressing `KEYCODE_HOME` preserves `MainActivity` focus without navigating away.
+- Verified live on AOSP API 34 emulator with evidence saved in `docs/evidence/m13-kiosk-mode.txt`.
+- Completes Phase 3 (Sprint 3: AOSP Customization, Milestones M10–M13).
+
+
 ### M12 — Locked-Screen SOS & Runtime Resource Overlay (2026-10-14)
 
 - Configured `:overlay` Gradle module (`com.safesignal.overlay`) building an RRO APK targeting system framework `android`.

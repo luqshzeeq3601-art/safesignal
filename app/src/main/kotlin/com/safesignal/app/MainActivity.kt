@@ -54,6 +54,23 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        val kioskManager = com.safesignal.app.admin.KioskManager(this)
+        if (kioskManager.isDeviceOwner) {
+            kioskManager.startKiosk(this)
+        }
+    }
+
+    override fun onNewIntent(intent: android.content.Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        val kioskManager = com.safesignal.app.admin.KioskManager(this)
+        if (kioskManager.isDeviceOwner) {
+            kioskManager.startKiosk(this)
+        }
+    }
+
     override fun dispatchKeyEvent(event: android.view.KeyEvent): Boolean {
         if (event.keyCode == android.view.KeyEvent.KEYCODE_F12) {
             if (event.action == android.view.KeyEvent.ACTION_DOWN) {
