@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+### M9 — Dispatcher Acknowledgement & Emulator E2E (2026-10-14)
+
+- Implemented `scripts/e2e.ps1` automating the complete end-to-end emulator verification across 4 gates:
+  1. Service & Server Ready (foreground `MonitorService` and Ktor server healthy).
+  2. Fall Injected & Escalated (synthetic fall triggers 3s countdown expiring into `Sending`).
+  3. Dispatcher Received with GPS & Battery (`POST /api/alerts` ingested with coordinates and battery).
+  4. Worker Acknowledged (`POST /api/alerts/{id}/ack` dispatched, worker ack polling completes, beacon transitions to `Acknowledged`).
+- Fixed asynchronous race condition between `PersistAlert` Room insert and `SendAlert` network dispatch by coordinating `persistJob.join()` and outbox retrieval retry in `AlertSyncer`.
+- Enhanced `AndroidLocationSource` to provide valid fallback coordinates if GPS satellite acquisition has not yet completed on cold emulator start.
+- Verified live end-to-end pass: `E2E PASS (4/4)` with evidence saved in `docs/evidence/m9-emulator-e2e.txt`.
+- Completes Phase 2 (Sprint 2: Milestones M5–M9).
+
 ### M8 — Compose UI, False Alarm Cancel, SOS Button & History (2026-10-14)
 
 - Implemented `StatusViewModel` and `StatusUiState` binding real-time state from `AlertController` and managing shift/alert actions.
@@ -12,6 +24,8 @@
 - Updated `AlertController` to persist cancelled alert records into Room upon `CancelPressed` during countdowns.
 - Added comprehensive Compose UI instrumented tests (`SafeSignalUiTest`) verifying shift transitions, countdown UI with cancel button, false alarm cancellation recording in History, emergency SOS button dispatch, and empty state handling.
 - Verified with `.\gradlew.bat :app:connectedDebugAndroidTest` (10/10 tests pass on AOSP API 34 emulator).
+
+### M7 — Foreground Monitoring Service & Fall Detection (2026-10-14)
 
 - Implemented data sources with test doubles: `SensorSource` (`AndroidSensorSource`, `ReplaySensorSource`), `LocationSource` (`AndroidLocationSource`, `FakeLocationSource`), `BatterySource` (`AndroidBatterySource`, `FakeBatterySource`).
 - Implemented `AlertController` singleton owning `StateFlow<AlertStateMachine.State>` and executing state-machine effects (`StartCountdown`, `StopCountdown`, `PersistAlert`, `SendAlert`, `StartAckPolling`, `LogKpi`).

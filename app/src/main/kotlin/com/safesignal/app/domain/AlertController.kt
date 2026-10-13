@@ -45,6 +45,7 @@ class AlertController(
     val state: StateFlow<AlertStateMachine.State> = _state.asStateFlow()
 
     private var countdownJob: Job? = null
+    private var persistJob: Job? = null
     private var sendJob: Job? = null
     private var ackJob: Job? = null
 
@@ -89,6 +90,10 @@ class AlertController(
         } else if (old is AlertStateMachine.State.Countdown && new is AlertStateMachine.State.Sending) {
             logger(logTag, "Countdown(${old.type.name}) -> Sending")
             logger(logTag, "-> Sending")
+        } else if (new is AlertStateMachine.State.Sent) {
+            logger(logTag, "-> Sent")
+        } else if (new is AlertStateMachine.State.Acknowledged) {
+            logger(logTag, "-> Acknowledged(${new.acknowledgedBy ?: "DISPATCHER"})")
         }
     }
 
@@ -121,7 +126,7 @@ class AlertController(
             }
 
             is AlertStateMachine.Effect.PersistAlert -> {
-                scope.launch {
+                persistJob = scope.launch {
                     when (effect.status) {
                         AlertEntity.STATUS_PENDING -> {
                             val loc = locationSource.getLastKnownLocation()
@@ -156,6 +161,7 @@ class AlertController(
             is AlertStateMachine.Effect.SendAlert -> {
                 sendJob?.cancel()
                 sendJob = scope.launch {
+                    persistJob?.join()
                     val result = alertSyncer.sendPendingAlert(effect.alertId)
                     if (result.isSuccess) {
                         processEvent(AlertStateMachine.Event.DeliverySucceeded(effect.alertId))
