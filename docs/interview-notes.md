@@ -17,3 +17,11 @@ One short entry per component: what it is, why it is built this way, and the tra
 **Why:** Keeping signal processing in pure Java with vector mathematics ensures deterministic testing on the JVM in milliseconds. The 3-phase fall model (free-fall valley → impact peak → post-fall immobility) eliminates false positives from walking, sitting, and dropped phones.
 
 **Trade-off:** The 2-second post-impact stillness requirement introduces a brief, deliberate delay before raising an alert, which is necessary to confirm the worker is genuinely down and has not picked up the device.
+
+## M2 — Protocol & Alert State Machine
+
+**What:** Shared wire models (`AlertMessage`, `AlertRecord`, `AckRequest`), pure state machine (`AlertStateMachine`), exponential backoff (`RetryPolicy`), and HTTP client wrapper (`AlertApi`).
+
+**Why:** Defining a pure state machine `transition(state, event) -> (newState, effects)` decouples emergency logic from Android and network I/O, making every state edge testable in milliseconds. Sharing models across `:protocol`, `:server`, `:bot`, and `:app` prevents schema drift. Client-generated `alertId` guarantees POST idempotence.
+
+**Trade-off:** Effects cannot execute inline and must be interpreted by an outer controller, requiring explicit effect definitions.

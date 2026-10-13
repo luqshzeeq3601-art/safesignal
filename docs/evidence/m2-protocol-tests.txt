@@ -1,0 +1,69 @@
+> Task :protocol:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :protocol:compileKotlin UP-TO-DATE
+> Task :protocol:compileJava NO-SOURCE
+> Task :protocol:processResources NO-SOURCE
+> Task :protocol:classes UP-TO-DATE
+> Task :protocol:jar UP-TO-DATE
+> Task :protocol:compileTestKotlin UP-TO-DATE
+> Task :protocol:compileTestJava NO-SOURCE
+> Task :protocol:processTestResources NO-SOURCE
+> Task :protocol:testClasses UP-TO-DATE
+
+> Task :protocol:test
+
+AlertApiTest > postAlertSendsPayloadAndParsesRecord STANDARD_ERROR
+    SLF4J(W): No SLF4J providers were found.
+    SLF4J(W): Defaulting to no-operation (NOP) logger implementation
+    SLF4J(W): See https://www.slf4j.org/codes.html#noProviders for further details.
+
+AlertApiTest > postAlertSendsPayloadAndParsesRecord PASSED
+
+AlertApiTest > getAlertReturnsRecordById PASSED
+
+AlertApiTest > httpErrorReturnsFailureResult PASSED
+
+AlertApiTest > getAlertsReturnsListOfRecords PASSED
+
+AlertApiTest > checkHealthReturnsOk PASSED
+
+AlertApiTest > acknowledgeAlertSendsDispatcherAndParsesAck PASSED
+
+AlertMessageJsonTest > nullLocationSerializesCorrectly PASSED
+
+AlertMessageJsonTest > alertRecordAndAckRequestSerialization PASSED
+
+AlertMessageJsonTest > jsonOutputMatchesDataMdSpecification PASSED
+
+AlertStateMachineTest > ackReceivedTransitionsToAcknowledged PASSED
+
+AlertStateMachineTest > idleToMonitoringOnStartShift PASSED
+
+AlertStateMachineTest > sosPressedInMonitoringSendsImmediatelyWithoutCountdown PASSED
+
+AlertStateMachineTest > monitoringToIdleOnStopShift PASSED
+
+AlertStateMachineTest > sosPressedDuringCountdownEscalatesImmediately PASSED
+
+AlertStateMachineTest > deliverySucceededTransitionsToSentAndStartsAckPolling PASSED
+
+AlertStateMachineTest > resetReturnsToMonitoring PASSED
+
+AlertStateMachineTest > countdownExpiredEscalatesToSending PASSED
+
+AlertStateMachineTest > countdownTickUpdatesSeconds PASSED
+
+AlertStateMachineTest > cancelPressedAbortsCountdown PASSED
+
+AlertStateMachineTest > activeAlertIgnoresStopShiftAndFurtherDetections PASSED
+
+AlertStateMachineTest > detectionTransitionsToCountdown PASSED
+
+AlertStateMachineTest > deliveryFailedSchedulesRetryWithExponentialBackoff PASSED
+
+RetryPolicyTest > backoffScheduleIncreasesExponentiallyUpToCap PASSED
+
+RetryPolicyTest > maxAttemptsRespected PASSED
+
+BUILD SUCCESSFUL in 2s
+4 actionable tasks: 1 executed, 3 up-to-date
+Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.8.1/userguide/configuration_cache_enabling.html
