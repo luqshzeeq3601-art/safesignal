@@ -104,3 +104,10 @@ In accordance with our engineering verification standard (utilizing patterns fro
 | [Data.md](Data.md) | SQLite Schemas, Network Payloads, and KPI Model |
 | [Security.md](Security.md) | Safety Rules & Device Admin Permissions |
 | [docs/audits/](docs/audits/) | Comprehensive Quality, Security, Battery, and Test Audits |
+
+---
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
