@@ -104,10 +104,7 @@ if ($Quick -or ([string]::IsNullOrEmpty($AppEventsPath) -and -not (Get-Command a
 
     while (-not $healthy -and ((Get-Date) - $startWait).TotalSeconds -lt $timeoutSec) {
         try {
-            $resp = curl.exe -s http://localhost:8080/health 2>$null
-            if (-not $resp) {
-                $resp = (Invoke-RestMethod -Uri "http://localhost:8080/health" -TimeoutSec 2 -ErrorAction SilentlyContinue)
-            }
+            $resp = Invoke-RestMethod -Uri "http://localhost:8080/health" -TimeoutSec 2 -ErrorAction Stop
             if ($resp -eq "OK") {
                 $healthy = $true
                 break

@@ -40,10 +40,7 @@ try {
 
     while (-not $healthy -and ((Get-Date) - $startWait).TotalSeconds -lt $timeoutSec) {
         try {
-            $response = curl.exe -s http://localhost:8080/health
-            if (-not $response) {
-                $response = (Invoke-RestMethod -Uri "http://localhost:8080/health" -TimeoutSec 2 -ErrorAction SilentlyContinue)
-            }
+            $response = Invoke-RestMethod -Uri "http://localhost:8080/health" -TimeoutSec 2 -ErrorAction Stop
             if ($response -eq "OK") {
                 $healthy = $true
                 break
