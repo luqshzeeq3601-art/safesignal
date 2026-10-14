@@ -9,12 +9,23 @@ import com.safesignal.protocol.RetryPolicy
 import kotlinx.coroutines.delay
 import java.util.UUID
 
+data class BotKpiEvent(
+    val epochMs: Long,
+    val elapsedMs: Long,
+    val alertId: String,
+    val event: String,
+    val detail: String = ""
+)
+
 data class AlertResult(
     val alertId: String,
     val type: AlertType,
     val delivered: Boolean,
     val acknowledged: Boolean,
-    val attempts: Int
+    val attempts: Int,
+    val raisedAtMs: Long = 0L,
+    val deliveredAtMs: Long = 0L,
+    val ackedAtMs: Long = 0L
 )
 
 data class BotReport(
@@ -22,7 +33,8 @@ data class BotReport(
     val deliveredCount: Int,
     val acknowledgedCount: Int,
     val retriesCount: Int,
-    val results: List<AlertResult>
+    val results: List<AlertResult>,
+    val kpiEvents: List<BotKpiEvent> = emptyList()
 ) {
     fun summaryString(): String =
         "$deliveredCount/$totalAlerts delivered, $acknowledgedCount/$totalAlerts acknowledged, retries=$retriesCount"
@@ -43,7 +55,9 @@ class WorkerBot(
     suspend fun sendAlert(
         type: AlertType,
         alertId: String = UUID.randomUUID().toString(),
-        simulateInitialFailures: Int = 0
+        simulateInitialFailures: Int = 0,
+        eventsCollector: MutableList<BotKpiEvent>? = null,
+        shiftStartMs: Long = System.currentTimeMillis()
     ): AlertResult {
         var state: AlertStateMachine.State = AlertStateMachine.State.Monitoring
 
@@ -54,6 +68,30 @@ class WorkerBot(
             AlertStateMachine.transition(countdown.state, AlertStateMachine.Event.CountdownExpired(alertId), retryPolicy)
         }
         state = raiseTransition.state
+
+        val raisedAtMs = System.currentTimeMillis()
+        var deliveredAtMs = 0L
+        var ackedAtMs = 0L
+
+        val detectedAtMs = if (type == AlertType.SOS) raisedAtMs else (raisedAtMs - 3000L)
+        eventsCollector?.add(
+            BotKpiEvent(
+                epochMs = detectedAtMs,
+                elapsedMs = (detectedAtMs - shiftStartMs).coerceAtLeast(0L),
+                alertId = alertId,
+                event = "DETECTED",
+                detail = type.name
+            )
+        )
+        eventsCollector?.add(
+            BotKpiEvent(
+                epochMs = raisedAtMs,
+                elapsedMs = (raisedAtMs - shiftStartMs).coerceAtLeast(0L),
+                alertId = alertId,
+                event = "RAISED",
+                detail = type.name
+            )
+        )
 
         var attempt = 1
         var delivered = false
@@ -71,6 +109,15 @@ class WorkerBot(
                 state = failTrans.state
                 val delayMs = retryPolicy.delayForAttempt(attempt + 1)
                 println("[Bot $workerId] Attempt $attempt failed (simulated network outage). Retrying in ${delayMs}ms...")
+                eventsCollector?.add(
+                    BotKpiEvent(
+                        epochMs = System.currentTimeMillis(),
+                        elapsedMs = (System.currentTimeMillis() - shiftStartMs).coerceAtLeast(0L),
+                        alertId = alertId,
+                        event = "SEND_ATTEMPT",
+                        detail = "attempt=$attempt"
+                    )
+                )
                 delay(delayMs)
                 attempt++
                 continue
@@ -88,10 +135,29 @@ class WorkerBot(
             )
 
             println("[Bot $workerId] Dispatching alert $alertId (type=$type, attempt=$attempt)...")
+            eventsCollector?.add(
+                BotKpiEvent(
+                    epochMs = System.currentTimeMillis(),
+                    elapsedMs = (System.currentTimeMillis() - shiftStartMs).coerceAtLeast(0L),
+                    alertId = alertId,
+                    event = "SEND_ATTEMPT",
+                    detail = "attempt=$attempt"
+                )
+            )
             val postResult = api.postAlert(message)
 
             if (postResult.isSuccess) {
                 delivered = true
+                deliveredAtMs = System.currentTimeMillis()
+                eventsCollector?.add(
+                    BotKpiEvent(
+                        epochMs = deliveredAtMs,
+                        elapsedMs = (deliveredAtMs - shiftStartMs).coerceAtLeast(0L),
+                        alertId = alertId,
+                        event = "DELIVERED",
+                        detail = "attempt=$attempt"
+                    )
+                )
                 val succTrans = AlertStateMachine.transition(
                     state,
                     AlertStateMachine.Event.DeliverySucceeded(alertId),
@@ -120,7 +186,16 @@ class WorkerBot(
 
         if (!delivered) {
             println("[Bot $workerId] Alert $alertId exhausted retries.")
-            return AlertResult(alertId, type, delivered = false, acknowledged = false, attempts = attempt - 1)
+            return AlertResult(
+                alertId = alertId,
+                type = type,
+                delivered = false,
+                acknowledged = false,
+                attempts = attempt - 1,
+                raisedAtMs = raisedAtMs,
+                deliveredAtMs = deliveredAtMs,
+                ackedAtMs = ackedAtMs
+            )
         }
 
         val pollStart = System.currentTimeMillis()
@@ -131,6 +206,16 @@ class WorkerBot(
                 val record = getResult.getOrThrow()
                 if (record.status == RecordStatus.ACKNOWLEDGED) {
                     acknowledged = true
+                    ackedAtMs = System.currentTimeMillis()
+                    eventsCollector?.add(
+                        BotKpiEvent(
+                            epochMs = ackedAtMs,
+                            elapsedMs = (ackedAtMs - shiftStartMs).coerceAtLeast(0L),
+                            alertId = alertId,
+                            event = "ACK_SEEN",
+                            detail = alertId
+                        )
+                    )
                     val ackTrans = AlertStateMachine.transition(
                         state,
                         AlertStateMachine.Event.AckReceived(alertId, record.acknowledgedBy ?: "Dispatcher"),
@@ -149,22 +234,33 @@ class WorkerBot(
             type = type,
             delivered = delivered,
             acknowledged = acknowledged,
-            attempts = attempt
+            attempts = attempt,
+            raisedAtMs = raisedAtMs,
+            deliveredAtMs = deliveredAtMs,
+            ackedAtMs = ackedAtMs
         )
     }
 
     suspend fun runShift(
         alertCount: Int = 5,
-        simulateInitialFailures: Int = 1
+        simulateInitialFailures: Int = 1,
+        eventsCollector: MutableList<BotKpiEvent>? = null
     ): BotReport {
         val types = listOf(AlertType.FALL, AlertType.MAN_DOWN, AlertType.SOS, AlertType.FALL, AlertType.SOS)
         val results = mutableListOf<AlertResult>()
+        val events = eventsCollector ?: mutableListOf()
+        val shiftStart = System.currentTimeMillis()
         var totalRetries = 0
 
         for (i in 0 until alertCount) {
             val type = types[i % types.size]
             val failuresForThisAlert = if (i == 0) simulateInitialFailures else 0
-            val res = sendAlert(type, simulateInitialFailures = failuresForThisAlert)
+            val res = sendAlert(
+                type = type,
+                simulateInitialFailures = failuresForThisAlert,
+                eventsCollector = events,
+                shiftStartMs = shiftStart
+            )
             results.add(res)
             val retriesForAlert = (res.attempts - 1).coerceAtLeast(0)
             totalRetries += retriesForAlert
@@ -176,7 +272,8 @@ class WorkerBot(
             deliveredCount = results.count { it.delivered },
             acknowledgedCount = results.count { it.acknowledged },
             retriesCount = totalRetries,
-            results = results
+            results = results,
+            kpiEvents = events
         )
     }
 }

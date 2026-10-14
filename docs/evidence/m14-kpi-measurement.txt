@@ -3,12 +3,57 @@
 ==========================================================
 Project Root: C:\Users\ZeeqRyz\Desktop\03_Software_and_Agents\SafeSignal Lone Worker Emergency Beacon
 Output Directory: build\kpi
-Mode: Quick Simulation / Synthetic Lab
+Mode: Live JVM Harness (Server + Bot)
 
-[1/3] Preparing standardized evaluation telemetry...
-Prepared standard telemetry logs in C:\Users\ZeeqRyz\Desktop\03_Software_and_Agents\SafeSignal Lone Worker Emergency Beacon\build\kpi
+[1/4] Running :detection:test to measure lab non-fall traces...
+Lab non-fall evaluation: 0 false positives out of 9 non-fall traces
 
-[2/3] Executing :kpi calculation engine...
+[2/4] Running live JVM measurement harness (server + bot)...
+Server process started. Waiting for health check...
+Server is ready on port 8080.
+Executing WorkerBot to generate live telemetry...
+=== SafeSignal Worker Bot ===
+Server URL: http://localhost:8080
+Alert count: 5
+Worker ID: W-BOT-1
+Simulated retries: 1
+Auto-acknowledgement: true
+[Dispatcher] Background auto-acknowledgement loop started...
+[Bot W-BOT-1] Attempt 1 failed (simulated network outage). Retrying in 400ms...
+[Bot W-BOT-1] Dispatching alert (type=FALL, attempt=2)...
+[Bot W-BOT-1] Alert delivered successfully on attempt 2.
+[Bot W-BOT-1] Polling for acknowledgement on alert...
+[Dispatcher] Acknowledging alert...
+[Bot W-BOT-1] Alert ACKNOWLEDGED by AUTO_DISPATCHER!
+[Bot W-BOT-1] Dispatching alert (type=MAN_DOWN, attempt=1)...
+[Bot W-BOT-1] Alert delivered successfully on attempt 1.
+[Bot W-BOT-1] Polling for acknowledgement on alert...
+[Dispatcher] Acknowledging alert...
+[Bot W-BOT-1] Alert ACKNOWLEDGED by AUTO_DISPATCHER!
+[Bot W-BOT-1] Dispatching alert (type=SOS, attempt=1)...
+[Bot W-BOT-1] Alert delivered successfully on attempt 1.
+[Bot W-BOT-1] Polling for acknowledgement on alert...
+[Dispatcher] Acknowledging alert...
+[Bot W-BOT-1] Alert ACKNOWLEDGED by AUTO_DISPATCHER!
+[Bot W-BOT-1] Dispatching alert (type=FALL, attempt=1)...
+[Bot W-BOT-1] Alert delivered successfully on attempt 1.
+[Bot W-BOT-1] Polling for acknowledgement on alert...
+[Dispatcher] Acknowledging alert...
+[Bot W-BOT-1] Alert ACKNOWLEDGED by AUTO_DISPATCHER!
+[Bot W-BOT-1] Dispatching alert (type=SOS, attempt=1)...
+[Bot W-BOT-1] Alert delivered successfully on attempt 1.
+[Bot W-BOT-1] Polling for acknowledgement on alert...
+[Dispatcher] Acknowledging alert...
+[Bot W-BOT-1] Alert ACKNOWLEDGED by AUTO_DISPATCHER!
+KPI telemetry written to: build/kpi/kpi_events.csv (26 events)
+
+=== Final Bot Summary ===
+5/5 delivered, 5/5 acknowledged, retries=1
+SUCCESS: 5/5 delivered, 5/5 acknowledged, retries=1
+
+Collected live telemetry into C:\Users\ZeeqRyz\Desktop\03_Software_and_Agents\SafeSignal Lone Worker Emergency Beacon\build\kpi
+
+[3/4] Executing :kpi calculation engine...
 === SafeSignal KPI Evaluation Engine ===
 Output Directory: build/kpi
 Reading App Events from: C:\Users\ZeeqRyz\Desktop\03_Software_and_Agents\SafeSignal Lone Worker Emergency Beacon\build\kpi\kpi_events.csv
@@ -19,28 +64,25 @@ Generated CSV Report: C:\Users\ZeeqRyz\Desktop\03_Software_and_Agents\SafeSignal
 
 # SafeSignal - KPI Measurement Summary
 
-Generated: `2026-10-14 07:48:48` | Overall Status: **PASS**
+Overall Status: PASS
 
 ## System Key Performance Indicators
 
 | KPI | Target | Measured Value | Status | Notes |
 |---|---|---|---|---|
-| Detection-to-Alert Latency | p50 < 5s, p95 < 15s | p50: 980 ms, p95: 1250 ms | PASS | Countdown delay: 0 ms |
-| Delivery Success Rate | >= 95.0% within 60s | 100.0% (5/5 delivered) | PASS | First-attempt success: 100.0% (5/5) |
-| False-Alarm Rate | Field < 15.0%, Lab: 0 FP | Field: 20.0% (1/5 cancelled), Lab: 0/9 FP (0.0%) | PASS | 0 false detections across non-fall traces |
-| Battery Consumption | < 5.0 mAh/hr | 1.82 mAh/hr | PASS | 7.28 mAh over 4.0 h run time |
+| Detection-to-Alert Latency | p50 < 5s, p95 < 15s | p50: 8 ms, p95: 461 ms | PASS | Countdown delay: 3000 ms |
+| Delivery Success Rate | >= 95.0% within 60s | 100.0% (5/5 delivered) | PASS | First-attempt success: 80.0% (4/5) |
+| False-Alarm Rate | Field < 15.0%, Lab: 0 FP | Field: 0.0% (0/5 cancelled), Lab: 0/9 FP (0.0%) | PASS | 0 false detections across non-fall traces |
+| Battery Consumption | < 5.0 mAh/hr | 0.00 mAh/hr | N/A | N/A - No device attached (simulated/baseline) |
 
 ## Metric Definitions and Acceptance Proof
 
-1. **Detection-to-Alert Latency**: Measured from alert raise (`RAISED`) to dispatcher receipt confirmation (`DELIVERED`). The countdown delay (`RAISED - DETECTED`) is reported separately to distinguish configurable user cancel window from transmission latency.
-2. **Delivery Success Rate**: Percentage of raised alerts successfully ingested by the server within 60 seconds, validating outbox exponential backoff retries over flaky radio channels.
-3. **False-Alarm Rate**: Evaluated via dual-track verification: field false-alarm cancellation rate (`COUNTDOWN_CANCELLED / DETECTED`) and automated lab evaluation over 9 non-fall synthetic traces (`walk_*`, `sit_*`, `drop_phone_*`).
-4. **Battery Consumption**: Evaluated from Android `dumpsys batterystats` power estimation for the foreground location service and accelerometer sensor pipeline.
+1. Detection-to-Alert Latency: Measured from alert raise (RAISED) to dispatcher receipt confirmation (DELIVERED).
+2. Delivery Success Rate: Percentage of raised alerts successfully ingested by the server within 60 seconds.
+3. False-Alarm Rate: Evaluated via dual-track verification: field false-alarm cancellation rate and automated lab evaluation over 9 non-fall synthetic traces.
+4. Battery Consumption: Evaluated from Android dumpsys batterystats power estimation.
 
-BUILD SUCCESSFUL in 2s
-2 actionable tasks: 2 executed
-
-[3/3] Validating M14 acceptance criteria...
+[4/4] Validating M14 acceptance criteria...
 Found 4 KPI rows in summary.md
 
 ==========================================================

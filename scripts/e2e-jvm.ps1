@@ -14,11 +14,11 @@ $serverProcess = $null
 try {
     # 1. Start Ktor server in background
     Write-Host "[1/4] Starting SafeSignal server on port 8080..."
-    $isWindows = ($PSVersionTable.PSVersion.Major -lt 6) -or ($PSVersionTable.OS -like "*Windows*") -or ($env:OS -like "*Windows*")
-    $gradlew = if ($isWindows) { ".\gradlew.bat" } else { "./gradlew" }
+    $runOnWindows = ($PSVersionTable.PSVersion.Major -lt 6) -or $IsWindows -or ($env:OS -like "*Windows*")
+    $gradlew = if ($runOnWindows) { ".\gradlew.bat" } else { "./gradlew" }
 
     $serverStartInfo = New-Object System.Diagnostics.ProcessStartInfo
-    if ($isWindows) {
+    if ($runOnWindows) {
         $serverStartInfo.FileName = "cmd.exe"
         $serverStartInfo.Arguments = "/c .\gradlew.bat :server:run"
     } else {
@@ -63,7 +63,7 @@ try {
     Write-Host "[3/4] Running WorkerBot (5 alerts, 1 simulated retry, auto-ack enabled)..."
     $botArgs = "--server http://localhost:8080 --count 5 --simulate-retries 1 --auto-ack true"
     
-    $botOutput = if ($isWindows) {
+    $botOutput = if ($runOnWindows) {
         & cmd.exe /c ".\gradlew.bat :bot:run --args=`"$botArgs`"" 2>&1
     } else {
         & ./gradlew :bot:run --args="$botArgs" 2>&1
