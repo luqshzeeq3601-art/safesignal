@@ -105,6 +105,7 @@ object KpiCalculator {
         val batteryMahPerHour = batteryRecord?.mahPerHour ?: 0.0
         val batteryTotalMah = batteryRecord?.estimatedMah ?: 0.0
         val batteryDurationHours = batteryRecord?.durationHours ?: 0.0
+        val isEstimated = batteryRecord == null || batteryRecord.appUid in listOf("estimated", "no_device")
 
         return KpiSummary(
             latencyP50Ms = latencyP50,
@@ -122,7 +123,8 @@ object KpiCalculator {
             labTotalTraces = labTotalTraces,
             batteryMahPerHour = batteryMahPerHour,
             batteryTotalMah = batteryTotalMah,
-            batteryDurationHours = batteryDurationHours
+            batteryDurationHours = batteryDurationHours,
+            batteryIsEstimated = isEstimated
         )
     }
 
@@ -139,10 +141,10 @@ object KpiCalculator {
 
         val latencyStatus = if (summary.latencyP50Ms <= 5000 && summary.latencyP95Ms <= 15000) "PASS" else "WARN"
         val deliveryStatus = if (summary.deliveryRatePercent >= 95.0) "PASS" else "FAIL"
-        val falseAlarmStatus = if (summary.labFalsePositives == 0 && summary.falseAlarmFieldRatePercent <= 20.0) "PASS" else "WARN"
-        val batteryStatus = if (summary.batteryMahPerHour <= 5.0) "PASS" else "WARN"
+        val falseAlarmStatus = if (summary.labFalsePositives == 0 && summary.falseAlarmFieldRatePercent < 15.0) "PASS" else "WARN"
+        val batteryStatus = if (summary.batteryIsEstimated) "N/A" else if (summary.batteryMahPerHour <= 5.0) "PASS" else "WARN"
 
-        val overallStatus = if (latencyStatus == "PASS" && deliveryStatus == "PASS" && falseAlarmStatus == "PASS" && batteryStatus == "PASS") {
+        val overallStatus = if (latencyStatus == "PASS" && deliveryStatus == "PASS" && falseAlarmStatus == "PASS" && (batteryStatus == "PASS" || batteryStatus == "N/A")) {
             "PASS"
         } else {
             "ATTENTION NEEDED"
@@ -160,7 +162,7 @@ object KpiCalculator {
             appendLine("| Detection-to-Alert Latency | p50 < 5s, p95 < 15s | p50: ${summary.latencyP50Ms} ms, p95: ${summary.latencyP95Ms} ms | $latencyStatus | Countdown delay: ${summary.countdownP50Ms} ms |")
             appendLine("| Delivery Success Rate | >= 95.0% within 60s | ${String.format(Locale.US, "%.1f", summary.deliveryRatePercent)}% (${summary.deliveredWithin60s}/${summary.totalRaised} delivered) | $deliveryStatus | First-attempt success: ${String.format(Locale.US, "%.1f", summary.firstAttemptRatePercent)}% (${summary.firstAttemptDelivered}/${summary.totalRaised}) |")
             appendLine("| False-Alarm Rate | Field < 15.0%, Lab: 0 FP | Field: ${String.format(Locale.US, "%.1f", summary.falseAlarmFieldRatePercent)}% (${summary.cancelledCount}/${summary.detectedCount} cancelled), Lab: ${summary.labFalsePositives}/${summary.labTotalTraces} FP (0.0%) | $falseAlarmStatus | 0 false detections across non-fall traces |")
-            appendLine("| Battery Consumption | < 5.0 mAh/hr | ${String.format(Locale.US, "%.2f", summary.batteryMahPerHour)} mAh/hr | $batteryStatus | ${String.format(Locale.US, "%.2f", summary.batteryTotalMah)} mAh over ${String.format(Locale.US, "%.1f", summary.batteryDurationHours)} h run time |")
+            appendLine("| Battery Consumption | < 5.0 mAh/hr | ${String.format(Locale.US, "%.2f", summary.batteryMahPerHour)} mAh/hr | $batteryStatus | ${if (summary.batteryIsEstimated) "N/A - No device attached (simulated/baseline)" else "${String.format(Locale.US, "%.2f", summary.batteryTotalMah)} mAh over ${String.format(Locale.US, "%.1f", summary.batteryDurationHours)} h run time"} |")
             appendLine()
             appendLine("## Metric Definitions and Acceptance Proof")
             appendLine()
@@ -174,8 +176,8 @@ object KpiCalculator {
     fun formatCsv(summary: KpiSummary): String {
         val latencyStatus = if (summary.latencyP50Ms <= 5000 && summary.latencyP95Ms <= 15000) "PASS" else "WARN"
         val deliveryStatus = if (summary.deliveryRatePercent >= 95.0) "PASS" else "FAIL"
-        val falseAlarmStatus = if (summary.labFalsePositives == 0 && summary.falseAlarmFieldRatePercent <= 20.0) "PASS" else "WARN"
-        val batteryStatus = if (summary.batteryMahPerHour <= 5.0) "PASS" else "WARN"
+        val falseAlarmStatus = if (summary.labFalsePositives == 0 && summary.falseAlarmFieldRatePercent < 15.0) "PASS" else "WARN"
+        val batteryStatus = if (summary.batteryIsEstimated) "N/A" else if (summary.batteryMahPerHour <= 5.0) "PASS" else "WARN"
 
         return buildString {
             appendLine("kpi,target,measured_value,status,detail")

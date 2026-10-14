@@ -23,6 +23,7 @@ fun main(args: Array<String>): Unit {
     var workerId = "W-BOT-1"
     var simulateRetries = 1
     var autoAck = false
+    var kpiCsv: String? = null
 
     var i = 0
     while (i < args.size) {
@@ -45,6 +46,10 @@ fun main(args: Array<String>): Unit {
             }
             "--auto-ack" -> {
                 autoAck = args.getOrNull(i + 1)?.toBooleanStrictOrNull() ?: true
+                i += 2
+            }
+            "--kpi-csv" -> {
+                kpiCsv = args.getOrNull(i + 1)
                 i += 2
             }
             else -> i++
@@ -86,6 +91,22 @@ fun main(args: Array<String>): Unit {
 
     ackJob?.cancel()
     api.close()
+
+    kpiCsv?.let { path ->
+        try {
+            val file = java.io.File(path)
+            file.parentFile?.mkdirs()
+            file.printWriter().use { pw ->
+                pw.println("epochMs,elapsedMs,alertId,event,detail")
+                for (evt in report.kpiEvents) {
+                    pw.println("${evt.epochMs},${evt.elapsedMs},${evt.alertId},${evt.event},${evt.detail}")
+                }
+            }
+            println("KPI telemetry written to: $path (${report.kpiEvents.size} events)")
+        } catch (e: Exception) {
+            System.err.println("Failed to write KPI CSV to $path: ${e.message}")
+        }
+    }
 
     println("\n=== Final Bot Summary ===")
     println(report.summaryString())

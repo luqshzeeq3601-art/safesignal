@@ -44,5 +44,6 @@ data class KpiSummary(
     val labTotalTraces: Int,
     val batteryMahPerHour: Double,
     val batteryTotalMah: Double,
-    val batteryDurationHours: Double
+    val batteryDurationHours: Double,
+    val batteryIsEstimated: Boolean = false
 )
