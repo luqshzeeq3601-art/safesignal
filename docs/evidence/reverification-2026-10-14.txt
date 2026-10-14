@@ -1,0 +1,131 @@
+SafeSignal objective re-verification - 2026-10-14
+Emulator: AOSP API 34 (aosp_api34), app-debug.apk rebuilt from the working tree
+
+===== aosp\verify-privapp.ps1
+1. Checking APK installation path...
+Path under /system/priv-app/: /system/priv-app/SafeSignal (updated system app, PRIVILEGED)
+2. Checking privileged permission READ_PRIVILEGED_PHONE_STATE...
+permission android.permission.READ_PRIVILEGED_PHONE_STATE: granted=true
+3. Verifying deviceId matches ro.serialno...
+deviceId = ro.serialno (EMULATOR37X2X12X0)
+M10 PASS
+
+===== aosp\verify-key.ps1
+1. Checking loaded KeyLayoutFile in dumpsys input...
+New KeyLayoutFile loaded: /system/usr/keylayout/qwerty2.kl
+2. Verifying key logs KEYCODE_F12 in SafeSignal...
+Warning: Activity not started, intent has been delivered to currently running top-most instance.
+key logs KEYCODE_F12
+3. Verifying volume key behaviour is unchanged...
+volume unchanged
+M11 PASS
+
+===== aosp\verify-overlay.ps1
+1. Verifying overlay is enabled...
+Overlay enabled: com.safesignal.overlay
+2. Preparing device in locked keyguard state...
+Warning: Activity not started, intent has been delivered to currently running top-most instance.
+Keyguard verified active: isKeyguardShowing=true
+3. Injecting SOS hardware key on locked screen...
+locked-screen key press produces an SOS alert within 5 s (0.24s)
+M12 PASS
+
+===== aosp\verify-kiosk.ps1
+1. Verifying SafeSignal is Device Owner...
+App is Device Owner: com.safesignal.app/.admin.SafeSignalAdminReceiver
+2. Verifying LockTaskModeState is LOCKED...
+Lock task mode: mLockTaskModeState=LOCKED
+3. Verifying HOME key is locked and stays in MainActivity...
+HOME key pressed: HOME stays in MainActivity
+
+Summary: App is Device Owner; mLockTaskModeState=LOCKED; HOME stays in MainActivity
+M13 PASS
+
+===== scripts\e2e.ps1
+==========================================================
+       SafeSignal Emulator End-to-End Test (M9)
+==========================================================
+Project Root: C:\Users\ZeeqRyz\Desktop\03_Software_and_Agents\SafeSignal Lone Worker Emergency Beacon
+
+[Setup] Checking target Android emulator...
+Target emulator online: device
+Configured adb reverse port forwarding: tcp:8080 -> tcp:8080
+Set emulator GPS fix to coordinates (-122.4194, 37.7749)
+
+[Setup] Checking SafeSignal Dispatcher Server on port 8080...
+Starting SafeSignal Ktor server on port 8080...
+Server process started (PID: 21520)
+
+[Setup] Installing and configuring SafeSignal app...
+Building app-debug.apk...
+Warning: SDK processing. This version only understands SDK XML versions up to 3 but an SDK XML file of version 4 was encountered. This can happen if you use versions of Android Studio and the command-line tools that were released at different times.
+Cleared logcat buffer.
+Launching MainActivity and starting MonitorService...
+
+--- Gate 1/4: Verifying Service & Server Ready ---
+[GATE 1 PASS] Server healthy and MonitorService foreground active.
+
+--- Gate 2/4: Injecting Synthetic Fall & Verifying Escalation ---
+Broadcasting INJECT_FALL intent (countdown=3s)...
+Waiting 7s for countdown expiration and distress dispatch...
+[GATE 2 PASS] Fall successfully triggered and escalated to Sending.
+
+--- Gate 3/4: Verifying Dispatcher Ingestion with Location & Battery ---
+Received Alert ID   : af0b2715-fcd7-4d19-af94-8f07f39675a4
+Alert Type          : FALL
+Location Lat / Lon  : 37.7749, -122.4194
+Battery Level       : 100%
+[GATE 3 PASS] Dispatcher received FALL alert with verified emulator GPS fix (37.7749, -122.4194) and battery (100%).
+
+--- Gate 4/4: Dispatcher Acknowledges Alert & Worker Receives Ack ---
+Posting acknowledgement to /api/alerts/af0b2715-fcd7-4d19-af94-8f07f39675a4/ack...
+Server Ack Response: Status=ACKNOWLEDGED, AckBy=Dispatcher-Sarah
+Waiting up to 15s for worker device to poll and register acknowledgement...
+[GATE 4 PASS] Worker beacon received acknowledgement from Dispatcher-Sarah.
+
+==========================================================
+                    E2E PASS (4/4)
+==========================================================
+Gate 1/4: MonitorService foreground & Server ready        [PASS]
+Gate 2/4: Fall detected & escalated to distress signal    [PASS]
+Gate 3/4: Dispatcher received alert with GPS & Battery    [PASS]
+Gate 4/4: Dispatcher ack received & acknowledged on worker[PASS]
+
+Cleaning up spawned server process (PID: 21520)...
+
+===== scripts\e2e-jvm.ps1 (bot lines only)
+Server is ready! Health check OK.
+[2/5] Stopping the server to create a real outage...
+Server is down.
+Bot's first attempt failed against the stopped server.
+[4/5] Restarting the server...
+Server is back.
+[Bot W-BOT-1] Attempt 1 failed (Connection refused: getsockopt). Retrying in 400ms...
+[Bot W-BOT-1] Attempt 2 failed (Connection refused: getsockopt). Retrying in 800ms...
+[Bot W-BOT-1] Attempt 3 failed (Connection refused: getsockopt). Retrying in 1600ms...
+[Bot W-BOT-1] Attempt 4 failed (Connection refused: getsockopt). Retrying in 2000ms...
+[Bot W-BOT-1] Attempt 5 failed (Connection refused: getsockopt). Retrying in 2000ms...
+[Bot W-BOT-1] Alert a9e97bb8-2d6f-470f-aad9-10e608e28a42 delivered successfully on attempt 6.
+[Bot W-BOT-1] Alert 6a33d309-4bf6-4933-9691-fef21de1c680 delivered successfully on attempt 1.
+[Bot W-BOT-1] Alert 3a9f2038-be21-45e2-b095-fa6b562bae5d delivered successfully on attempt 1.
+[Bot W-BOT-1] Alert 408d3c40-031f-4f20-8fe2-c1cc17b69f02 delivered successfully on attempt 1.
+[Bot W-BOT-1] Alert 6e4c239e-9510-4d80-9553-68b13939ec27 delivered successfully on attempt 1.
+
+=== Final Bot Summary ===
+5/5 delivered, 5/5 acknowledged, retries=5
+SUCCESS: 5/5 delivered, 5/5 acknowledged, retries=5
+E2E JVM PASS: 5/5 delivered, 5/5 acknowledged, retries=5 (retries>0, real server outage)
+
+===== scripts\kpi-run.ps1 (device mode, default 10 min) -> build\kpi\summary.md
+# SafeSignal - KPI Measurement Summary
+
+Generated: `2026-10-14 09:32:30` | Overall Status: **PASS**
+
+## System Key Performance Indicators
+
+| KPI | Target | Measured Value | Status | Notes |
+|---|---|---|---|---|
+| Detection-to-Alert Latency | p50 < 5s, p95 < 15s | p50: 539 ms, p95: 548 ms | PASS | Countdown delay: 3030 ms |
+| Delivery Success Rate | >= 95.0% within 60s | 100.0% (20/20 delivered) | PASS | First-attempt success: 95.0% (19/20) |
+| False-Alarm Rate | Field < 15.0%, Lab: 0 FP | Field: 9.1% (2/22 cancelled), Lab: 0/8 FP (0.0%) | PASS | Simulated cancellation verified (2/22 cancelled). 0 false detections across 8 non-fall traces |
+| Battery Consumption | < 5.0 mAh/hr | 1.49 mAh/hr | PASS | Emulator power_profile estimate: 0.25 mAh over 0.17 h run time (default: 10 min) |

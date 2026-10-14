@@ -30,7 +30,7 @@ class KioskManager(private val context: Context) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                 dpm.setLockTaskFeatures(
                     adminComponent,
-                    DevicePolicyManager.LOCK_TASK_FEATURE_NONE
+                    DevicePolicyManager.LOCK_TASK_FEATURE_KEYGUARD
                 )
             }
             Log.i("SafeSignal", "KioskManager: Lock task packages configured successfully")

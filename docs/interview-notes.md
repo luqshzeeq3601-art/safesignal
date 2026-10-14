@@ -76,9 +76,9 @@ One short entry per component: what it is, why it is built this way, and the tra
 
 ## M9 — Dispatcher Acknowledgement & Emulator End-to-End
 
-**What:** Full-loop integration test script (`scripts/e2e.ps1`) executing across 4 validation gates: foreground monitoring service startup, synthetic fall injection, dispatcher server ingestion with valid GPS location and battery level, and dispatcher acknowledgement observed by the Android worker beacon.
+**What:** Full-loop integration test script (`scripts/e2e.ps1`) executing across 4 validation gates: foreground monitoring service startup, synthetic fall injection, dispatcher server ingestion with verified live GPS coordinates (`37.7749, -122.4194`) and battery level, and dispatcher acknowledgement observed by the Android worker beacon.
 
-**Why:** Proves that the complete distributed system functions as a cohesive unit on actual Android runtime rather than isolated mocks. Uncovered and eliminated subtle race conditions between asynchronous Room outbox persistence and HTTP network dispatching.
+**Why:** Proves that the complete distributed system functions as a cohesive unit on actual Android runtime rather than isolated mocks. Uncovered and eliminated subtle race conditions between asynchronous Room outbox persistence and HTTP network dispatching. Hooking `AndroidLocationSource` as an active `LocationListener` during shifts ensures real GPS fixes are powered and streamed from the HAL rather than reverting to hardcoded fallback coordinates.
 
 **Trade-off:** End-to-end emulator testing involves multiple moving parts (adb process control, reverse port forwarding, Ktor server process lifecycles, and asynchronous polling), requiring robust timeout management and clean process tree teardown in PowerShell.
 
@@ -100,11 +100,11 @@ One short entry per component: what it is, why it is built this way, and the tra
 
 ## M12 — Locked-Screen SOS via Runtime Resource Overlay (RRO)
 
-**What:** Runtime Resource Overlay module (`:overlay`, `com.safesignal.overlay`) overriding framework-res configs (`config_allowTheaterModeWakeFromKey`), paired with `MainActivity` lockscreen occlusion flags (`setShowWhenLocked`, `setTurnScreenOn`) and top-level `dispatchKeyEvent` interception.
+**What:** Runtime Resource Overlay module (`:overlay`, `com.safesignal.overlay`) overriding framework-res configs (`config_allowTheaterModeWakeFromKey`), paired with `MainActivity` lockscreen occlusion flags (`setShowWhenLocked`, `setTurnScreenOn`), `FLAG_KEEP_SCREEN_ON` during shifts, `LOCK_TASK_FEATURE_KEYGUARD` in `KioskManager`, and top-level `dispatchKeyEvent` interception.
 
-**Why:** Emergency beacons must function instantly without requiring the user to wake, unlock, or enter credentials on the device. An RRO APK safely customizes Android OS framework behaviors without recompiling the monolithic Android OS codebase. Enabling key-wake policies and activity occlusion allows single-press SOS dispatch from sleep within 200 ms.
+**Why:** Emergency beacons must function instantly without requiring the user to wake, unlock, or enter credentials on the device. An RRO APK safely customizes Android OS framework behaviors without recompiling the monolithic Android OS codebase. Setting `LOCK_TASK_FEATURE_KEYGUARD` permits lockscreen keyguard in kiosk mode, while `FLAG_KEEP_SCREEN_ON` during active monitoring prevents the Android OS from consuming the hardware SOS key to wake a sleeping display.
 
-**Trade-off:** Runtime Resource Overlays targeting the Android platform (`android`) require vendor partition placement or privileged platform signature permissions, limiting this capability to enterprise-provisioned or dedicated lone-worker OEM devices.
+**Trade-off:** Keeping the display awake during shifts guarantees single-press SOS dispatch at the cost of higher display power draw. Without keeping the screen on, standard AOSP `PhoneWindowManager` consumes the wake press and requires a second press to dispatch unless modified via framework-level OS source changes.
 
 ## M14 — System KPI Measurement & Evaluation
 
@@ -113,10 +113,10 @@ One short entry per component: what it is, why it is built this way, and the tra
 **Why:** Quantitative reliability proof is vital for life-safety systems. Evaluates the 4 core product KPIs defined in PRD.md:
 1. Detection-to-Alert Latency: p50 < 5s, p95 < 15s (separating transmission latency from configurable countdown cancel windows).
 2. Delivery Success Rate: >= 95% within 60s under radio dropouts.
-3. False-Alarm Rate: dual-track evaluation combining field cancellation rates with lab evaluation on 9 non-fall sensor traces (0 false positives).
-4. Battery Consumption: measured in estimated mAh/hour from Android `dumpsys batterystats`.
+3. False-Alarm Rate: dual-track evaluation combining simulated worker countdown cancellations (testing cancel logging and outbox suppression) with lab evaluation on non-fall sensor traces (0 false positives).
+4. Battery Consumption: measured in estimated mAh/hour from Android `dumpsys batterystats` against the AOSP `power_profile.xml` model over the test duration (default 10 min).
 
-**Trade-off:** Evaluates telemetry from structured CSV logs and Android batterystats rather than requiring full physical battery drain bench testing over 48 hours, enabling sub-second automated verification in CI pipelines.
+**Trade-off:** Evaluates telemetry from structured CSV logs and Android batterystats emulator models rather than requiring multi-day physical hardware battery coulometer bench tests, enabling deterministic and automated verification in CI pipelines. Real-world false alarm rates require longitudinal worker fleet telemetry.
 
 ## M15 — Continuous Integration Pipeline & Agile Wrap-Up
 

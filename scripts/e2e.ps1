@@ -91,9 +91,11 @@ try {
     # 2. Install latest APK and grant required runtime permissions
     Write-Host "`n[Setup] Installing and configuring SafeSignal app..."
     $apkPath = Join-Path $projectRoot "app\build\outputs\apk\debug\app-debug.apk"
-    if (-not (Test-Path $apkPath)) {
-        Write-Host "Building app-debug.apk..."
-        & cmd.exe /c ".\gradlew.bat :app:assembleDebug" | Out-Null
+    # Always rebuild so the test never runs against a stale APK (Gradle skips it when up to date)
+    Write-Host "Building app-debug.apk..."
+    & cmd.exe /c ".\gradlew.bat :app:assembleDebug" | Out-Null
+    if ($LASTEXITCODE -ne 0) {
+        throw ":app:assembleDebug failed."
     }
     adb install -r $apkPath 2>&1 | Out-Null
 
@@ -111,6 +113,11 @@ try {
     Start-Sleep -Seconds 1
     adb shell am start-foreground-service -a com.safesignal.app.START_MONITORING com.safesignal.app/.service.MonitorService 2>&1 | Out-Null
     Start-Sleep -Seconds 2
+
+    # Set GPS location on emulator while monitoring service is active and listening
+    adb emu geo fix -122.4194 37.7749 2>&1 | Out-Null
+    Write-Host "Set emulator GPS fix to coordinates (-122.4194, 37.7749)"
+    Start-Sleep -Seconds 1
 
     # --- GATE 1: Service & Server Ready ---
     Write-Host "`n--- Gate 1/4: Verifying Service & Server Ready ---" -ForegroundColor Yellow
@@ -172,7 +179,19 @@ try {
     if ($null -eq $lat -or $null -eq $lon -or $null -eq $battery) {
         throw "GATE 3 FAILED: Alert missing GPS coordinates or battery level."
     }
-    Write-Host "[GATE 3 PASS] Dispatcher received FALL alert with valid location ($lat, $lon) and battery ($battery%)." -ForegroundColor Green
+
+    # Verify coordinates are from the emulator's GPS fix and not the hardcoded fallback (3.1390, 101.6869)
+    if ([math]::Abs($lat - 3.1390) -lt 0.001 -and [math]::Abs($lon - 101.6869) -lt 0.001) {
+        throw "GATE 3 FAILED: Alert sent fallback coordinates (3.139, 101.6869) rather than the emulator's GPS fix."
+    }
+
+    $expectedLat = 37.7749
+    $expectedLon = -122.4194
+    if ([math]::Abs($lat - $expectedLat) -gt 0.05 -or [math]::Abs($lon - $expectedLon) -gt 0.05) {
+        throw "GATE 3 FAILED: Received location ($lat, $lon) does not match expected emulator GPS fix ($expectedLat, $expectedLon)."
+    }
+
+    Write-Host "[GATE 3 PASS] Dispatcher received FALL alert with verified emulator GPS fix ($lat, $lon) and battery ($battery%)." -ForegroundColor Green
 
     # --- GATE 4: Dispatcher Acknowledges Alert & Worker Sees Ack ---
     Write-Host "`n--- Gate 4/4: Dispatcher Acknowledges Alert & Worker Receives Ack ---" -ForegroundColor Yellow

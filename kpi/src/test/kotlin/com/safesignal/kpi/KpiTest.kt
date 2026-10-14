@@ -129,6 +129,8 @@ class KpiTest {
         assertTrue(markdown.contains("p50: ${summary.latencyP50Ms} ms"))
         assertTrue(markdown.contains("100.0% (2/2 delivered)"))
         assertTrue(markdown.contains("1.80 mAh/hr"))
+        assertTrue(markdown.contains("Simulated cancellation verified (1/2 cancelled)"))
+        assertTrue(markdown.contains("Emulator power_profile estimate"))
 
         // Format CSV
         val csv = KpiCalculator.formatCsv(summary)
@@ -136,6 +138,26 @@ class KpiTest {
         assertTrue(csv.contains("Delivery Success Rate"))
         assertTrue(csv.contains("False-Alarm Rate"))
         assertTrue(csv.contains("Battery Consumption"))
+    }
+
+    @Test
+    fun `KpiCalculator uses the first DELIVERED row and matches the attempt number exactly`() {
+        val appEvents = listOf(
+            // Alert 1: delivered on attempt 11 after an outage, logged twice like the app does
+            KpiAppEvent(1000, 0, "a1", "RAISED", "FALL"),
+            KpiAppEvent(19000, 18000, "a1", "DELIVERED", "attempt=11"),
+            KpiAppEvent(19005, 18005, "a1", "DELIVERED", "a1"),
+            // Alert 2: delivered on the first attempt, logged twice
+            KpiAppEvent(20000, 19000, "a2", "RAISED", "SOS"),
+            KpiAppEvent(20400, 19400, "a2", "DELIVERED", "attempt=1"),
+            KpiAppEvent(20410, 19410, "a2", "DELIVERED", "a2")
+        )
+
+        val summary = KpiCalculator.calculate(appEvents = appEvents)
+
+        assertEquals(2, summary.deliveredWithin60s)
+        assertEquals(1, summary.firstAttemptDelivered)
+        assertEquals(18000L, summary.latencyP95Ms)
     }
 
     @Test

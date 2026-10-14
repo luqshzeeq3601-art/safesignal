@@ -1,6 +1,7 @@
 package com.safesignal.app.data
 
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.safesignal.protocol.AlertMessage
 import com.safesignal.protocol.AlertType
@@ -10,7 +11,13 @@ import com.safesignal.protocol.LocationPayload
  * Room entity representing an alert in the local database.
  * Serves as both local audit history and reliable retry outbox.
  */
-@Entity(tableName = "alerts")
+@Entity(
+    tableName = "alerts",
+    indices = [
+        Index(value = ["status"]),
+        Index(value = ["raisedAtEpochMs"])
+    ]
+)
 data class AlertEntity(
     @PrimaryKey
     val alertId: String,

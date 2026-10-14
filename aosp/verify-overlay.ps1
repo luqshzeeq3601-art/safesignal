@@ -63,36 +63,47 @@ Start-Sleep -Seconds 1
 $windowDump = (& $adb.Source shell "dumpsys window 2>/dev/null") | Out-String
 $isLocked = $windowDump -match "isKeyguardShowing=true"
 if (-not $isLocked) {
+    Start-Sleep -Seconds 1
+    $windowDump = (& $adb.Source shell "dumpsys window 2>/dev/null") | Out-String
+    $isLocked = $windowDump -match "isKeyguardShowing=true"
+}
+if ($isLocked) {
+    Write-Host "Keyguard verified active: isKeyguardShowing=true"
+} else {
     Write-Host "Note: Keyguard not reporting true; proceeding with screen lock state"
 }
 
-Write-Host "3. Injecting SOS hardware key on locked screen..."
-$stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
-& $adb.Source logcat -c
-& $adb.Source shell input keyevent KEYCODE_F12
+try {
+    Write-Host "3. Injecting SOS hardware key on locked screen..."
+    $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
+    & $adb.Source logcat -c
+    & $adb.Source shell input keyevent KEYCODE_F12
 
-$alertProduced = $false
-$elapsedSec = 0.0
+    $alertProduced = $false
+    $elapsedSec = 0.0
 
-while ($stopwatch.Elapsed.TotalSeconds -lt 5.0) {
-    $logs = & $adb.Source logcat -d -s SafeSignal 2>$null
-    if ($logs -match "Hardware SOS key pressed" -or $logs -match "SOS alert produced" -or $logs -match "Sending") {
-        $alertProduced = $true
-        $elapsedSec = [math]::Round($stopwatch.Elapsed.TotalSeconds, 2)
-        break
+    while ($stopwatch.Elapsed.TotalSeconds -lt 5.0) {
+        $logs = & $adb.Source logcat -d -s SafeSignal 2>$null
+        if ($logs -match "Hardware SOS key pressed" -or $logs -match "SOS alert produced" -or $logs -match "Sending") {
+            $alertProduced = $true
+            $elapsedSec = [math]::Round($stopwatch.Elapsed.TotalSeconds, 2)
+            break
+        }
+        Start-Sleep -Milliseconds 200
     }
-    Start-Sleep -Milliseconds 200
+    $stopwatch.Stop()
+
+    if (-not $alertProduced) {
+        throw "Verification failed: Locked-screen SOS key press did not produce an alert within 5 s"
+    }
+
+    Write-Host "locked-screen key press produces an SOS alert within 5 s (${elapsedSec}s)"
+} finally {
+    # Remove the test PIN again: a PIN left behind keeps user 0 locked after the next reboot,
+    # and the app cannot be launched until someone unlocks the device by hand.
+    & $adb.Source shell "input keyevent 82 2>/dev/null" | Out-Null
+    & $adb.Source shell "locksettings clear --old 1234 2>/dev/null" | Out-Null
+    & $adb.Source shell "locksettings set-disabled true 2>/dev/null" | Out-Null
 }
-$stopwatch.Stop()
-
-if (-not $alertProduced) {
-    throw "Verification failed: Locked-screen SOS key press did not produce an alert within 5 s"
-}
-
-Write-Host "locked-screen key press produces an SOS alert within 5 s (${elapsedSec}s)"
-
-# Cleanup lockscreen for further test automation
-& $adb.Source shell "input keyevent 82 2>/dev/null" | Out-Null
-& $adb.Source shell "locksettings set-disabled true 2>/dev/null" | Out-Null
 
 Write-Host "M12 PASS"
