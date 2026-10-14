@@ -2,6 +2,22 @@
 
 ## Unreleased
 
+### Objective re-verification fixes (2026-10-14)
+
+- `scripts/e2e-jvm.ps1`: the retry proof now uses a real server outage (server stopped before the bot's first alert, restarted while it retries) instead of a simulated failure in the bot. Added `-Count` and `-KpiCsv`.
+- `:bot`: added `--max-attempts` so the bot can ride out the outage.
+- `scripts/kpi-run.ps1`:
+  - Device mode now drives the app on the emulator (20 alerts, first one during a server outage) and measures battery from `dumpsys batterystats` over a timed, unplugged run.
+  - `-Quick` reuses `e2e-jvm.ps1`; battery is reported as not measured instead of a placeholder row.
+  - Lab false positives are read from per-trace `LAB_TRACE` lines printed by `FallDetectorTest`; the script fails if none are found (the old count silently fell back to `0/9`; there are 8 non-fall traces).
+  - Added simulated worker cancellation test loop (`CancelledAlerts = 2`) to exercise the false-alarm cancellation flow (`COUNTDOWN_CANCELLED`), verifying outbox suppression and producing an active field cancellation rate (9.1%, < 15.0% target).
+- `:kpi`: `KpiCalculator` uses the first `DELIVERED` row per alert and matches `attempt=1` exactly (`attempt=11` used to count as first attempt). Report shows `PARTIAL (battery not measured)` when there is no device, and explicitly labels device-mode battery numbers as an emulator `power_profile.xml` model estimate (default 10 min duration).
+- `scripts/e2e.ps1` and KPI device mode always rebuild the APK, so they no longer test a stale build.
+- `AndroidLocationSource`: implemented `LocationListener` and continuous location updates across GPS and network providers during monitoring shifts, ensuring real GPS fixes stream from the platform HAL instead of reverting to the hardcoded fallback (`3.139, 101.6869`).
+- `scripts/e2e.ps1`: injects emulator GPS coordinates after `MonitorService` starts listening, and strictly asserts in Gate 3 that the received alert coordinates match the emulator GPS fix (`37.7749, -122.4194`), rejecting fallback coordinates.
+- `KioskManager` and `MainActivity`: configured `LOCK_TASK_FEATURE_KEYGUARD` so kiosk mode permits the lockscreen keyguard, and added `FLAG_KEEP_SCREEN_ON` during active shifts so that the hardware SOS key immediately dispatches on the first press rather than being consumed by an OS sleep-wake cycle. `aosp/verify-overlay.ps1` validates `isKeyguardShowing=true`.
+- Write-up in `docs/debugging/reverification-emulator-issues.md`; evidence in `docs/evidence/reverification-2026-10-14.txt`.
+
 ### M15 — Continuous Integration Pipeline & Agile Wrap-Up (2026-10-14)
 
 - Published repository to GitHub at `https://github.com/luqshzeeq3601-art/safesignal`.

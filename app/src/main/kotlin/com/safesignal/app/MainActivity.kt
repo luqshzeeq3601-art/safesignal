@@ -42,6 +42,7 @@ class MainActivity : ComponentActivity() {
                 android.view.WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
             )
         }
+        window.addFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
         setContent {
             MaterialTheme {

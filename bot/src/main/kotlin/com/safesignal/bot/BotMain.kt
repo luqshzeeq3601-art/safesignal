@@ -3,6 +3,7 @@ package com.safesignal.bot
 import com.safesignal.protocol.AckRequest
 import com.safesignal.protocol.AlertApi
 import com.safesignal.protocol.RecordStatus
+import com.safesignal.protocol.RetryPolicy
 import io.ktor.client.engine.cio.CIO
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -24,6 +25,7 @@ fun main(args: Array<String>): Unit {
     var simulateRetries = 1
     var autoAck = false
     var kpiCsv: String? = null
+    var maxAttempts = 10
 
     var i = 0
     while (i < args.size) {
@@ -46,6 +48,10 @@ fun main(args: Array<String>): Unit {
             }
             "--auto-ack" -> {
                 autoAck = args.getOrNull(i + 1)?.toBooleanStrictOrNull() ?: true
+                i += 2
+            }
+            "--max-attempts" -> {
+                maxAttempts = args.getOrNull(i + 1)?.toIntOrNull() ?: maxAttempts
                 i += 2
             }
             "--kpi-csv" -> {
@@ -86,7 +92,11 @@ fun main(args: Array<String>): Unit {
         }
     }
 
-    val bot = WorkerBot(api = api, workerId = workerId)
+    val bot = WorkerBot(
+        api = api,
+        workerId = workerId,
+        retryPolicy = RetryPolicy(initialDelayMs = 400, maxDelayMs = 2000, backoffFactor = 2.0, maxAttempts = maxAttempts)
+    )
     val report = bot.runShift(alertCount = count, simulateInitialFailures = simulateRetries)
 
     ackJob?.cancel()

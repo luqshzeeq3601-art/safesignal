@@ -34,7 +34,11 @@ object KpiCalculator {
 
         // Map by alertId when available
         val raisedByAlertId = raisedEvents.filter { it.alertId.isNotEmpty() }.associateBy { it.alertId }
-        val deliveredByAlertId = deliveredEvents.filter { it.alertId.isNotEmpty() }.associateBy { it.alertId }
+        // The app logs DELIVERED twice per alert (AlertSyncer with "attempt=N", then the state
+        // machine); the earliest row is the actual delivery and carries the attempt number.
+        val deliveredByAlertId = deliveredEvents.filter { it.alertId.isNotEmpty() }
+            .groupBy { it.alertId }
+            .mapValues { (_, rows) -> rows.minByOrNull { it.epochMs }!! }
 
         for ((alertId, raised) in raisedByAlertId) {
             val delivered = deliveredByAlertId[alertId]
@@ -44,7 +48,7 @@ object KpiCalculator {
                 if (latency <= 60_000L) {
                     deliveredWithin60sCount++
                 }
-                if (delivered.detail.contains("attempt=1") || delivered.detail.isEmpty()) {
+                if (isFirstAttempt(delivered)) {
                     firstAttemptCount++
                 }
             }
@@ -57,7 +61,7 @@ object KpiCalculator {
                 val latency = (deliveredEvents[i].epochMs - raisedEvents[i].epochMs).coerceAtLeast(0L)
                 latenciesMs.add(latency)
                 if (latency <= 60_000L) deliveredWithin60sCount++
-                if (deliveredEvents[i].detail.contains("attempt=1") || deliveredEvents[i].detail.isEmpty()) {
+                if (isFirstAttempt(deliveredEvents[i])) {
                     firstAttemptCount++
                 }
             }
@@ -128,6 +132,10 @@ object KpiCalculator {
         )
     }
 
+    // Exact match: "attempt=11" must not count as a first-attempt delivery.
+    private fun isFirstAttempt(delivered: KpiAppEvent): Boolean =
+        delivered.detail == "attempt=1" || delivered.detail.isEmpty()
+
     private fun calculatePercentile(values: List<Long>, percentile: Double): Long {
         if (values.isEmpty()) return 0L
         val sorted = values.sorted()
@@ -144,10 +152,16 @@ object KpiCalculator {
         val falseAlarmStatus = if (summary.labFalsePositives == 0 && summary.falseAlarmFieldRatePercent < 15.0) "PASS" else "WARN"
         val batteryStatus = if (summary.batteryIsEstimated) "N/A" else if (summary.batteryMahPerHour <= 5.0) "PASS" else "WARN"
 
-        val overallStatus = if (latencyStatus == "PASS" && deliveryStatus == "PASS" && falseAlarmStatus == "PASS" && (batteryStatus == "PASS" || batteryStatus == "N/A")) {
-            "PASS"
+        val othersPass = latencyStatus == "PASS" && deliveryStatus == "PASS" && falseAlarmStatus == "PASS"
+        val overallStatus = when {
+            othersPass && batteryStatus == "PASS" -> "PASS"
+            othersPass && batteryStatus == "N/A" -> "PARTIAL (battery not measured)"
+            else -> "ATTENTION NEEDED"
+        }
+        val labRatePercent = if (summary.labTotalTraces > 0) {
+            summary.labFalsePositives.toDouble() / summary.labTotalTraces * 100.0
         } else {
-            "ATTENTION NEEDED"
+            0.0
         }
 
         return buildString {
@@ -161,15 +175,15 @@ object KpiCalculator {
             appendLine("|---|---|---|---|---|")
             appendLine("| Detection-to-Alert Latency | p50 < 5s, p95 < 15s | p50: ${summary.latencyP50Ms} ms, p95: ${summary.latencyP95Ms} ms | $latencyStatus | Countdown delay: ${summary.countdownP50Ms} ms |")
             appendLine("| Delivery Success Rate | >= 95.0% within 60s | ${String.format(Locale.US, "%.1f", summary.deliveryRatePercent)}% (${summary.deliveredWithin60s}/${summary.totalRaised} delivered) | $deliveryStatus | First-attempt success: ${String.format(Locale.US, "%.1f", summary.firstAttemptRatePercent)}% (${summary.firstAttemptDelivered}/${summary.totalRaised}) |")
-            appendLine("| False-Alarm Rate | Field < 15.0%, Lab: 0 FP | Field: ${String.format(Locale.US, "%.1f", summary.falseAlarmFieldRatePercent)}% (${summary.cancelledCount}/${summary.detectedCount} cancelled), Lab: ${summary.labFalsePositives}/${summary.labTotalTraces} FP (0.0%) | $falseAlarmStatus | 0 false detections across non-fall traces |")
-            appendLine("| Battery Consumption | < 5.0 mAh/hr | ${String.format(Locale.US, "%.2f", summary.batteryMahPerHour)} mAh/hr | $batteryStatus | ${if (summary.batteryIsEstimated) "N/A - No device attached (simulated/baseline)" else "${String.format(Locale.US, "%.2f", summary.batteryTotalMah)} mAh over ${String.format(Locale.US, "%.1f", summary.batteryDurationHours)} h run time"} |")
+            appendLine("| False-Alarm Rate | Field < 15.0%, Lab: 0 FP | Field: ${String.format(Locale.US, "%.1f", summary.falseAlarmFieldRatePercent)}% (${summary.cancelledCount}/${summary.detectedCount} cancelled), Lab: ${summary.labFalsePositives}/${summary.labTotalTraces} FP (${String.format(Locale.US, "%.1f", labRatePercent)}%) | $falseAlarmStatus | ${if (summary.cancelledCount > 0) "Simulated cancellation verified (${summary.cancelledCount}/${summary.detectedCount} cancelled). " else ""}${summary.labFalsePositives} false detections across ${summary.labTotalTraces} non-fall traces |")
+            appendLine("| Battery Consumption | < 5.0 mAh/hr | ${String.format(Locale.US, "%.2f", summary.batteryMahPerHour)} mAh/hr | $batteryStatus | ${if (summary.batteryIsEstimated) "Not measured - no device attached (run kpi-run.ps1 without -Quick)" else "Emulator power_profile estimate: ${String.format(Locale.US, "%.2f", summary.batteryTotalMah)} mAh over ${String.format(Locale.US, "%.2f", summary.batteryDurationHours)} h run time (default: 10 min)"} |")
             appendLine()
             appendLine("## Metric Definitions and Acceptance Proof")
             appendLine()
             appendLine("1. **Detection-to-Alert Latency**: Measured from alert raise (`RAISED`) to dispatcher receipt confirmation (`DELIVERED`). The countdown delay (`RAISED - DETECTED`) is reported separately to distinguish configurable user cancel window from transmission latency.")
             appendLine("2. **Delivery Success Rate**: Percentage of raised alerts successfully ingested by the server within 60 seconds, validating outbox exponential backoff retries over flaky radio channels.")
-            appendLine("3. **False-Alarm Rate**: Evaluated via dual-track verification: field false-alarm cancellation rate (`COUNTDOWN_CANCELLED / DETECTED`) and automated lab evaluation over 9 non-fall synthetic traces (`walk_*`, `sit_*`, `drop_phone_*`).")
-            appendLine("4. **Battery Consumption**: Evaluated from Android `dumpsys batterystats` power estimation for the foreground location service and accelerometer sensor pipeline.")
+            appendLine("3. **False-Alarm Rate**: Evaluated via dual-track verification: simulated field worker countdown cancellation (`COUNTDOWN_CANCELLED / DETECTED`) exercising the false-alarm abort flow, alongside automated lab trace evaluation over ${summary.labTotalTraces} non-fall synthetic traces (`walk_*`, `sit_*`, `drop_phone_*`). Real-world false alarm rates require longitudinal worker fleet telemetry.")
+            appendLine("4. **Battery Consumption**: Evaluated from Android `dumpsys batterystats` using the AOSP platform `power_profile.xml` model over the test duration (script default 10 minutes) for foreground location service and accelerometer sensor pipeline. Physical hardware coulometer bench testing is required for production battery certification.")
         }
     }
 
@@ -184,7 +198,7 @@ object KpiCalculator {
             appendLine("Detection-to-Alert Latency,\"p50<5000ms;p95<15000ms\",\"p50=${summary.latencyP50Ms}ms;p95=${summary.latencyP95Ms}ms\",$latencyStatus,\"countdown_p50=${summary.countdownP50Ms}ms\"")
             appendLine("Delivery Success Rate,\">=95.0%\",\"${String.format(Locale.US, "%.1f", summary.deliveryRatePercent)}%\",$deliveryStatus,\"total_raised=${summary.totalRaised};delivered_within_60s=${summary.deliveredWithin60s};first_attempt_rate=${String.format(Locale.US, "%.1f", summary.firstAttemptRatePercent)}%\"")
             appendLine("False-Alarm Rate,\"Field<15.0%;Lab=0\",\"Field=${String.format(Locale.US, "%.1f", summary.falseAlarmFieldRatePercent)}%;Lab=${summary.labFalsePositives}/${summary.labTotalTraces}\",$falseAlarmStatus,\"cancelled=${summary.cancelledCount};detected=${summary.detectedCount};lab_fp=${summary.labFalsePositives}\"")
-            appendLine("Battery Consumption,\"<5.0mAh/hr\",\"${String.format(Locale.US, "%.2f", summary.batteryMahPerHour)}mAh/hr\",$batteryStatus,\"estimated_mah=${String.format(Locale.US, "%.2f", summary.batteryTotalMah)};duration_hours=${String.format(Locale.US, "%.1f", summary.batteryDurationHours)}\"")
+            appendLine("Battery Consumption,\"<5.0mAh/hr\",\"${String.format(Locale.US, "%.2f", summary.batteryMahPerHour)}mAh/hr\",$batteryStatus,\"emulator_model_estimate;estimated_mah=${String.format(Locale.US, "%.2f", summary.batteryTotalMah)};duration_hours=${String.format(Locale.US, "%.2f", summary.batteryDurationHours)}\"")
         }
     }
 }

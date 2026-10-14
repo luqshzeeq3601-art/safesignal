@@ -149,6 +149,11 @@ class MonitorService : Service() {
     private fun startMonitoring() {
         alertController.processEvent(AlertStateMachine.Event.StartShift)
         sensorSource.start()
+        try {
+            SafeSignalApplication.instance.locationSource.start()
+        } catch (e: Exception) {
+            Log.w(TAG, "Failed to start locationSource: ${e.message}")
+        }
 
         sensorJob?.cancel()
         sensorJob = serviceScope.launch {
@@ -169,6 +174,11 @@ class MonitorService : Service() {
         sensorJob?.cancel()
         sensorJob = null
         sensorSource.stop()
+        try {
+            SafeSignalApplication.instance.locationSource.stop()
+        } catch (e: Exception) {
+            Log.w(TAG, "Failed to stop locationSource: ${e.message}")
+        }
         alertController.processEvent(AlertStateMachine.Event.StopShift)
     }
 

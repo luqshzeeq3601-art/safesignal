@@ -42,50 +42,43 @@ public class FallDetectorTest {
 
     @Test
     public void zeroDetectionsOnWalkTraces() {
-        List<String> walkTraces = TraceReader.listTracesWithPrefix("walk_");
-        assertFalse("Walk traces must not be empty", walkTraces.isEmpty());
-
-        for (String tracePath : walkTraces) {
-            detector.reset();
-            List<AccelSample> samples = TraceReader.loadTrace(tracePath);
-
-            for (AccelSample sample : samples) {
-                Optional<DetectionEvent> event = detector.onSample(sample);
-                assertFalse("Walk trace " + tracePath + " must not trigger fall detection", event.isPresent());
-            }
-        }
+        assertNoDetections("walk_");
     }
 
     @Test
     public void zeroDetectionsOnSitTraces() {
-        List<String> sitTraces = TraceReader.listTracesWithPrefix("sit_");
-        assertFalse("Sit traces must not be empty", sitTraces.isEmpty());
-
-        for (String tracePath : sitTraces) {
-            detector.reset();
-            List<AccelSample> samples = TraceReader.loadTrace(tracePath);
-
-            for (AccelSample sample : samples) {
-                Optional<DetectionEvent> event = detector.onSample(sample);
-                assertFalse("Sit trace " + tracePath + " must not trigger fall detection", event.isPresent());
-            }
-        }
+        assertNoDetections("sit_");
     }
 
     @Test
     public void zeroDetectionsOnDropPhoneTraces() {
-        List<String> dropTraces = TraceReader.listTracesWithPrefix("drop_phone_");
-        assertFalse("Drop phone traces must not be empty", dropTraces.isEmpty());
+        assertNoDetections("drop_phone_");
+    }
 
-        for (String tracePath : dropTraces) {
+    /**
+     * Replays every non-fall trace with the given prefix and prints one LAB_TRACE line per trace.
+     * scripts/kpi-run.ps1 reads those lines from the JUnit report to count lab false positives.
+     */
+    private void assertNoDetections(String prefix) {
+        List<String> traces = TraceReader.listTracesWithPrefix(prefix);
+        assertFalse(prefix + " traces must not be empty", traces.isEmpty());
+
+        List<String> falsePositives = new ArrayList<>();
+        for (String tracePath : traces) {
             detector.reset();
-            List<AccelSample> samples = TraceReader.loadTrace(tracePath);
-
-            for (AccelSample sample : samples) {
-                Optional<DetectionEvent> event = detector.onSample(sample);
-                assertFalse("Drop phone trace " + tracePath + " must not trigger fall detection", event.isPresent());
+            int detections = 0;
+            for (AccelSample sample : TraceReader.loadTrace(tracePath)) {
+                if (detector.onSample(sample).isPresent()) {
+                    detections++;
+                }
+            }
+            System.out.println("LAB_TRACE " + tracePath + " detections=" + detections);
+            if (detections > 0) {
+                falsePositives.add(tracePath);
             }
         }
+
+        assertTrue("Non-fall traces must not trigger fall detection: " + falsePositives, falsePositives.isEmpty());
     }
 
     @Test

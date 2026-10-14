@@ -20,14 +20,24 @@ if (-not $adb) {
 
 Write-Host "1. Checking APK installation path..."
 $pathOut = & $adb.Source shell pm path com.safesignal.app 2>$null
-if (-not $pathOut -or $pathOut -notmatch "package:(/system.*priv-app.*SafeSignal.*apk)") {
-    throw "Verification failed: Package path '$pathOut' is not under /system/priv-app/"
+$dump = & $adb.Source shell dumpsys package com.safesignal.app 2>$null
+if ($pathOut -and $pathOut -match "package:(/system.*priv-app.*SafeSignal.*apk)") {
+    $privPath = $Matches[1]
+} else {
+    # A later `adb install -r` (e.g. scripts/e2e.ps1) turns the app into an updated system app:
+    # `pm path` then points at /data/app, but the package keeps its PRIVILEGED flag and the
+    # system copy stays registered under "Hidden system packages".
+    $systemCopy = $dump | Select-String -Pattern "codePath=(/system/priv-app/SafeSignal)"
+    $updatedSystemApp = $dump | Select-String -Pattern "pkgFlags=\[.*UPDATED_SYSTEM_APP"
+    $privFlag = $dump | Select-String -Pattern "privateFlags=\[.*PRIVILEGED"
+    if (-not $systemCopy -or -not $updatedSystemApp -or -not $privFlag) {
+        throw "Verification failed: Package path '$pathOut' is not under /system/priv-app/"
+    }
+    $privPath = "$($systemCopy.Matches[0].Groups[1].Value) (updated system app, PRIVILEGED)"
 }
-$privPath = $Matches[1]
 Write-Host "Path under /system/priv-app/: $privPath"
 
 Write-Host "2. Checking privileged permission READ_PRIVILEGED_PHONE_STATE..."
-$dump = & $adb.Source shell dumpsys package com.safesignal.app 2>$null
 $permMatch = $dump | Select-String -Pattern "android\.permission\.READ_PRIVILEGED_PHONE_STATE:\s*granted=true"
 if (-not $permMatch) {
     throw "Verification failed: READ_PRIVILEGED_PHONE_STATE is not granted=true"
@@ -55,17 +65,30 @@ if (-not $resolved) {
     throw "ActivityManager cannot resolve com.safesignal.app/.MainActivity"
 }
 
-# Force stop app, clear logcat, and launch MainActivity
+# Restart the app process so it logs its startup line with the device serial.
+# `am force-stop` is silently ignored once the app is Device Owner (M13, protected package),
+# so a process that survives it is killed as root instead.
+& $adb.Source logcat -c
 & $adb.Source shell am force-stop com.safesignal.app
 Start-Sleep -Seconds 1
-& $adb.Source logcat -c
+$appPid = (& $adb.Source shell pidof com.safesignal.app | Out-String).Trim()
+if ($appPid) {
+    & $adb.Source root | Out-Null
+    & $adb.Source wait-for-device
+    & $adb.Source shell kill $appPid
+    Start-Sleep -Seconds 1
+}
 & $adb.Source shell am start --user 0 -n com.safesignal.app/.MainActivity | Out-Null
-Start-Sleep -Seconds 3
 
 # Check logcat for deviceId
-$logs = & $adb.Source logcat -d -s SafeSignal 2>$null
-$deviceLogMatch = $logs | Select-String -Pattern "Device:\s*([^\s,]+)"
-$reportedSerial = if ($deviceLogMatch) { $deviceLogMatch.Matches[0].Groups[1].Value } else { "" }
+$reportedSerial = ""
+$startTime = [System.DateTime]::UtcNow
+while (-not $reportedSerial -and ([System.DateTime]::UtcNow - $startTime).TotalSeconds -lt 15) {
+    Start-Sleep -Seconds 1
+    $logs = & $adb.Source logcat -d -s SafeSignal 2>$null
+    $deviceLogMatch = $logs | Select-String -Pattern "Device:\s*([^\s,]+)"
+    if ($deviceLogMatch) { $reportedSerial = $deviceLogMatch.Matches[0].Groups[1].Value }
+}
 
 if ($reportedSerial -ne $roSerial) {
     throw "Verification failed: deviceId '$reportedSerial' does not match ro.serialno '$roSerial'"
