@@ -70,10 +70,12 @@ Write-Host "Lab non-fall evaluation: $labFp false positives out of $labTotal non
 if ($Quick -or ([string]::IsNullOrEmpty($AppEventsPath) -and -not (Get-Command adb -ErrorAction SilentlyContinue))) {
     Write-Host "`n[2/4] Running live JVM measurement harness (server + bot)..." -ForegroundColor Yellow
 
-    # Ensure port 8080 is clear
-    $existingPortPids = Get-NetTCPConnection -LocalPort 8080 -ErrorAction SilentlyContinue | Select-Object -ExpandProperty OwningProcess -Unique
-    foreach ($pidToKill in $existingPortPids) {
-        Stop-Process -Id $pidToKill -Force -ErrorAction SilentlyContinue
+    # Ensure port 8080 is clear on Windows
+    if ($runOnWindows) {
+        $existingPortPids = Get-NetTCPConnection -LocalPort 8080 -ErrorAction SilentlyContinue | Select-Object -ExpandProperty OwningProcess -Unique
+        foreach ($pidToKill in $existingPortPids) {
+            Stop-Process -Id $pidToKill -Force -ErrorAction SilentlyContinue
+        }
     }
 
     $simAppEvents = Join-Path $targetOutputDir "kpi_events.csv"
@@ -137,9 +139,11 @@ if ($Quick -or ([string]::IsNullOrEmpty($AppEventsPath) -and -not (Get-Command a
     # Stop server
     if ($serverProcess -and -not $serverProcess.HasExited) {
         Stop-Process -Id $serverProcess.Id -Force -ErrorAction SilentlyContinue
-        $portPids = Get-NetTCPConnection -LocalPort 8080 -ErrorAction SilentlyContinue | Select-Object -ExpandProperty OwningProcess -Unique
-        foreach ($pidToKill in $portPids) {
-            Stop-Process -Id $pidToKill -Force -ErrorAction SilentlyContinue
+        if ($runOnWindows) {
+            $portPids = Get-NetTCPConnection -LocalPort 8080 -ErrorAction SilentlyContinue | Select-Object -ExpandProperty OwningProcess -Unique
+            foreach ($pidToKill in $portPids) {
+                Stop-Process -Id $pidToKill -Force -ErrorAction SilentlyContinue
+            }
         }
     }
 
