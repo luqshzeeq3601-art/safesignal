@@ -89,10 +89,12 @@ try {
     if ($serverProcess -and -not $serverProcess.HasExited) {
         Write-Host "Stopping server process tree..."
         Stop-Process -Id $serverProcess.Id -Force -ErrorAction SilentlyContinue
-        # Kill any child java processes on port 8080 if lingering
-        $portPids = Get-NetTCPConnection -LocalPort 8080 -ErrorAction SilentlyContinue | Select-Object -ExpandProperty OwningProcess -Unique
-        foreach ($pidToKill in $portPids) {
-            Stop-Process -Id $pidToKill -Force -ErrorAction SilentlyContinue
+        # Kill any child java processes on port 8080 if lingering on Windows
+        if ($runOnWindows) {
+            $portPids = Get-NetTCPConnection -LocalPort 8080 -ErrorAction SilentlyContinue | Select-Object -ExpandProperty OwningProcess -Unique
+            foreach ($pidToKill in $portPids) {
+                Stop-Process -Id $pidToKill -Force -ErrorAction SilentlyContinue
+            }
         }
     }
 }
