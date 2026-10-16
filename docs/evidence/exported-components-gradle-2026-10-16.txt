@@ -1,0 +1,216 @@
+Warning: SDK processing. This version only understands SDK XML versions up to 3 but an SDK XML file of version 4 was encountered. This can happen if you use versions of Android Studio and the command-line tools that were released at different times.
+> Task :detection:compileJava UP-TO-DATE
+> Task :detection:processResources NO-SOURCE
+> Task :detection:classes UP-TO-DATE
+> Task :detection:jar UP-TO-DATE
+> Task :protocol:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :protocol:compileKotlin UP-TO-DATE
+> Task :protocol:compileJava NO-SOURCE
+> Task :protocol:processResources NO-SOURCE
+> Task :protocol:classes UP-TO-DATE
+> Task :protocol:jar UP-TO-DATE
+> Task :app:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :app:checkDebugAarMetadata UP-TO-DATE
+> Task :app:generateDebugResValues UP-TO-DATE
+> Task :app:mapDebugSourceSetPaths UP-TO-DATE
+> Task :app:generateDebugResources UP-TO-DATE
+> Task :app:mergeDebugResources UP-TO-DATE
+> Task :app:packageDebugResources UP-TO-DATE
+> Task :app:parseDebugLocalResources UP-TO-DATE
+> Task :app:createDebugCompatibleScreenManifests UP-TO-DATE
+> Task :app:extractDeepLinksDebug UP-TO-DATE
+> Task :app:processDebugMainManifest
+> Task :app:processDebugManifest
+> Task :app:javaPreCompileDebug UP-TO-DATE
+> Task :app:preDebugUnitTestBuild UP-TO-DATE
+> Task :app:javaPreCompileDebugUnitTest UP-TO-DATE
+> Task :app:buildKotlinToolingMetadata UP-TO-DATE
+> Task :app:preReleaseBuild UP-TO-DATE
+> Task :app:checkReleaseAarMetadata UP-TO-DATE
+> Task :app:generateReleaseResValues UP-TO-DATE
+> Task :app:mapReleaseSourceSetPaths UP-TO-DATE
+> Task :app:generateReleaseResources UP-TO-DATE
+> Task :app:mergeReleaseResources UP-TO-DATE
+> Task :app:packageReleaseResources UP-TO-DATE
+> Task :app:parseReleaseLocalResources UP-TO-DATE
+> Task :app:createReleaseCompatibleScreenManifests UP-TO-DATE
+> Task :app:extractDeepLinksRelease UP-TO-DATE
+> Task :app:processReleaseMainManifest
+> Task :app:processReleaseManifest
+> Task :app:javaPreCompileRelease UP-TO-DATE
+> Task :app:preReleaseUnitTestBuild UP-TO-DATE
+> Task :app:javaPreCompileReleaseUnitTest UP-TO-DATE
+> Task :bot:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :bot:compileKotlin UP-TO-DATE
+> Task :bot:compileJava NO-SOURCE
+> Task :bot:processResources NO-SOURCE
+> Task :bot:classes UP-TO-DATE
+> Task :bot:jar UP-TO-DATE
+> Task :bot:compileTestKotlin UP-TO-DATE
+> Task :bot:compileTestJava NO-SOURCE
+> Task :bot:processTestResources NO-SOURCE
+> Task :bot:testClasses UP-TO-DATE
+> Task :bot:test UP-TO-DATE
+> Task :detection:compileTestJava UP-TO-DATE
+> Task :detection:processTestResources UP-TO-DATE
+> Task :detection:testClasses UP-TO-DATE
+> Task :detection:test UP-TO-DATE
+> Task :kpi:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :kpi:compileKotlin UP-TO-DATE
+> Task :kpi:compileJava NO-SOURCE
+> Task :kpi:processResources NO-SOURCE
+> Task :kpi:classes UP-TO-DATE
+> Task :kpi:jar UP-TO-DATE
+> Task :kpi:compileTestKotlin UP-TO-DATE
+> Task :kpi:compileTestJava NO-SOURCE
+> Task :kpi:processTestResources NO-SOURCE
+> Task :kpi:testClasses UP-TO-DATE
+> Task :kpi:test UP-TO-DATE
+> Task :overlay:preBuild UP-TO-DATE
+> Task :overlay:preDebugBuild UP-TO-DATE
+> Task :overlay:javaPreCompileDebug UP-TO-DATE
+> Task :overlay:checkDebugAarMetadata UP-TO-DATE
+> Task :overlay:generateDebugResValues UP-TO-DATE
+> Task :overlay:mapDebugSourceSetPaths UP-TO-DATE
+> Task :overlay:generateDebugResources UP-TO-DATE
+> Task :overlay:mergeDebugResources UP-TO-DATE
+> Task :overlay:packageDebugResources UP-TO-DATE
+> Task :overlay:parseDebugLocalResources UP-TO-DATE
+> Task :overlay:createDebugCompatibleScreenManifests UP-TO-DATE
+> Task :overlay:extractDeepLinksDebug UP-TO-DATE
+> Task :overlay:processDebugMainManifest UP-TO-DATE
+> Task :overlay:processDebugManifest UP-TO-DATE
+> Task :overlay:processDebugManifestForPackage UP-TO-DATE
+> Task :overlay:processDebugResources UP-TO-DATE
+> Task :overlay:compileDebugJavaWithJavac NO-SOURCE
+> Task :overlay:bundleDebugClassesToRuntimeJar UP-TO-DATE
+> Task :overlay:bundleDebugClassesToCompileJar UP-TO-DATE
+> Task :overlay:preDebugUnitTestBuild UP-TO-DATE
+> Task :overlay:javaPreCompileDebugUnitTest UP-TO-DATE
+> Task :overlay:compileDebugUnitTestJavaWithJavac NO-SOURCE
+> Task :overlay:processDebugJavaRes NO-SOURCE
+> Task :overlay:processDebugUnitTestJavaRes NO-SOURCE
+> Task :overlay:testDebugUnitTest NO-SOURCE
+> Task :overlay:preReleaseBuild UP-TO-DATE
+> Task :overlay:javaPreCompileRelease UP-TO-DATE
+> Task :overlay:checkReleaseAarMetadata UP-TO-DATE
+> Task :overlay:generateReleaseResValues UP-TO-DATE
+> Task :overlay:mapReleaseSourceSetPaths UP-TO-DATE
+> Task :overlay:generateReleaseResources UP-TO-DATE
+> Task :overlay:mergeReleaseResources UP-TO-DATE
+> Task :overlay:packageReleaseResources UP-TO-DATE
+> Task :overlay:parseReleaseLocalResources UP-TO-DATE
+> Task :overlay:createReleaseCompatibleScreenManifests UP-TO-DATE
+> Task :overlay:extractDeepLinksRelease UP-TO-DATE
+> Task :overlay:processReleaseMainManifest UP-TO-DATE
+> Task :overlay:processReleaseManifest UP-TO-DATE
+> Task :overlay:processReleaseManifestForPackage UP-TO-DATE
+> Task :overlay:processReleaseResources UP-TO-DATE
+> Task :overlay:compileReleaseJavaWithJavac NO-SOURCE
+> Task :overlay:bundleReleaseClassesToRuntimeJar UP-TO-DATE
+> Task :overlay:bundleReleaseClassesToCompileJar UP-TO-DATE
+> Task :overlay:preReleaseUnitTestBuild UP-TO-DATE
+> Task :overlay:javaPreCompileReleaseUnitTest UP-TO-DATE
+> Task :overlay:compileReleaseUnitTestJavaWithJavac NO-SOURCE
+> Task :overlay:processReleaseJavaRes NO-SOURCE
+> Task :overlay:processReleaseUnitTestJavaRes NO-SOURCE
+> Task :overlay:testReleaseUnitTest NO-SOURCE
+> Task :overlay:test UP-TO-DATE
+> Task :protocol:compileTestKotlin UP-TO-DATE
+> Task :protocol:compileTestJava NO-SOURCE
+> Task :protocol:processTestResources NO-SOURCE
+> Task :protocol:testClasses UP-TO-DATE
+> Task :protocol:test UP-TO-DATE
+> Task :server:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :server:compileKotlin UP-TO-DATE
+> Task :server:compileJava NO-SOURCE
+> Task :server:processResources UP-TO-DATE
+> Task :server:classes UP-TO-DATE
+> Task :server:jar UP-TO-DATE
+> Task :server:compileTestKotlin UP-TO-DATE
+> Task :server:compileTestJava NO-SOURCE
+> Task :server:processTestResources NO-SOURCE
+> Task :server:testClasses UP-TO-DATE
+> Task :server:test UP-TO-DATE
+> Task :app:preDebugAndroidTestBuild SKIPPED
+> Task :app:generateDebugAndroidTestResValues UP-TO-DATE
+> Task :app:extractProguardFiles UP-TO-DATE
+> Task :app:mergeDebugNativeDebugMetadata NO-SOURCE
+> Task :app:mergeDebugShaders UP-TO-DATE
+> Task :app:compileDebugShaders NO-SOURCE
+> Task :app:generateDebugAssets UP-TO-DATE
+> Task :app:mergeDebugAssets UP-TO-DATE
+> Task :app:compressDebugAssets UP-TO-DATE
+> Task :app:desugarDebugFileDependencies UP-TO-DATE
+> Task :app:checkDebugDuplicateClasses UP-TO-DATE
+> Task :app:mergeExtDexDebug UP-TO-DATE
+> Task :app:mergeLibDexDebug UP-TO-DATE
+> Task :app:mergeDebugJniLibFolders UP-TO-DATE
+> Task :app:mergeDebugNativeLibs UP-TO-DATE
+> Task :app:stripDebugDebugSymbols UP-TO-DATE
+> Task :app:validateSigningDebug UP-TO-DATE
+> Task :app:writeDebugAppMetadata UP-TO-DATE
+> Task :app:writeDebugSigningConfigVersions UP-TO-DATE
+> Task :app:processDebugManifestForPackage
+> Task :app:processReleaseManifestForPackage
+> Task :app:processDebugResources
+> Task :app:processReleaseResources
+> Task :app:kaptGenerateStubsDebugKotlin
+> Task :app:kaptDebugKotlin
+> Task :app:kaptGenerateStubsReleaseKotlin
+> Task :app:compileDebugKotlin
+> Task :app:compileDebugJavaWithJavac UP-TO-DATE
+> Task :app:processDebugJavaRes UP-TO-DATE
+> Task :app:bundleDebugClassesToCompileJar
+> Task :app:bundleDebugClassesToRuntimeJar
+> Task :app:generateDebugLintReportModel
+> Task :app:generateDebugAndroidTestLintModel
+> Task :app:generateDebugUnitTestLintModel
+> Task :app:kaptGenerateStubsDebugUnitTestKotlin
+> Task :app:kaptReleaseKotlin
+> Task :app:kaptDebugUnitTestKotlin
+> Task :app:dexBuilderDebug
+> Task :app:mergeDebugGlobalSynthetics UP-TO-DATE
+> Task :app:mergeDebugJavaResource UP-TO-DATE
+> Task :app:compileDebugUnitTestKotlin
+> Task :app:compileDebugUnitTestJavaWithJavac NO-SOURCE
+> Task :app:processDebugUnitTestJavaRes UP-TO-DATE
+> Task :app:mergeProjectDexDebug
+> Task :app:compileReleaseKotlin
+> Task :app:testDebugUnitTest
+> Task :app:compileReleaseJavaWithJavac
+> Task :app:processReleaseJavaRes UP-TO-DATE
+> Task :app:bundleReleaseClassesToRuntimeJar
+> Task :app:bundleReleaseClassesToCompileJar
+> Task :app:packageDebug
+> Task :app:createDebugApkListingFileRedirect UP-TO-DATE
+> Task :app:assembleDebug
+> Task :app:kaptGenerateStubsReleaseUnitTestKotlin
+> Task :app:kaptReleaseUnitTestKotlin
+> Task :app:compileReleaseUnitTestKotlin
+> Task :app:compileReleaseUnitTestJavaWithJavac NO-SOURCE
+> Task :app:processReleaseUnitTestJavaRes UP-TO-DATE
+> Task :app:lintAnalyzeDebugAndroidTest
+> Task :app:lintAnalyzeDebugUnitTest
+> Task :app:testReleaseUnitTest
+> Task :app:test
+> Task :app:lintAnalyzeDebug
+
+> Task :app:lintReportDebug
+Wrote HTML report to file:///C:/Users/ZeeqRyz/Desktop/03_Software_and_Agents/SafeSignal%20Lone%20Worker%20Emergency%20Beacon/app/build/reports/lint-results-debug.html
+
+> Task :app:lintDebug
+
+[Incubating] Problems report is available at: file:///C:/Users/ZeeqRyz/Desktop/03_Software_and_Agents/SafeSignal%20Lone%20Worker%20Emergency%20Beacon/build/reports/problems/problems-report.html
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 10.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/9.8.1/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD SUCCESSFUL in 42s
+140 actionable tasks: 38 executed, 102 up-to-date
+Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.8.1/userguide/configuration_cache_enabling.html

@@ -36,7 +36,7 @@ adb shell pm grant com.safesignal.app android.permission.POST_NOTIFICATIONS 2>&1
 Write-Host "Launching MainActivity and starting MonitorService in foreground..."
 adb shell am start -W -n com.safesignal.app/.MainActivity | Out-Null
 Start-Sleep -Seconds 1
-adb shell am start-foreground-service -a com.safesignal.app.START_MONITORING com.safesignal.app/.service.MonitorService | Out-Null
+adb shell am broadcast -a com.safesignal.app.START_MONITORING -p com.safesignal.app | Out-Null
 Start-Sleep -Seconds 2
 
 # 5. Inject synthetic fall event with configured countdown

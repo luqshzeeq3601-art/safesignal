@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <application>
+
+        <!-- Debug builds only. android.permission.DUMP is held by the adb shell uid
+             but cannot be granted to third-party apps. -->
+        <receiver
+            android:name=".service.FallInjectionReceiver"
+            android:permission="android.permission.DUMP"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.safesignal.app.START_MONITORING" />
+                <action android:name="com.safesignal.app.INJECT_FALL" />
+            </intent-filter>
+        </receiver>
+
+    </application>
+
+</manifest>
