@@ -13,6 +13,7 @@ Commands and endpoints an agent may use in this project. Anything not listed nee
 | `emulator`, `avdmanager`, `sdkmanager` (from M5) | via `scripts/setup-sdk.ps1` and `scripts/emulator-*.ps1`. **SDK download needs approval** |
 | `curl.exe` | requests to `http://localhost:8080` only |
 | `scripts/*.ps1`, `aosp/*.ps1` | project scripts |
+| `python scripts/render-docs.py` | redraw the README charts in `docs/images/` |
 
 ## Local HTTP endpoints (`:server`, `http://localhost:8080`)
 

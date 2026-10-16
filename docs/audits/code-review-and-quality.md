@@ -3,7 +3,9 @@
 **Auditor:** Agentic Reviewer (per `code-review-and-quality` skill)  
 **Date:** 2026-10-14  
 **Scope:** Full codebase review across `:detection`, `:protocol`, `:server`, `:bot`, `:app`, `:kpi`, `aosp/`, and `scripts/`.  
-**Overall Verdict:** **APPROVED (Exceeds Engineering Standards)**
+**Overall Verdict:** **APPROVED for the emulator demo, with open security findings** (see Axis 4)
+
+> **Correction (2026-10-16).** Thresholds, backoff values, index type and server validation below were corrected to match the code. The earlier version also omitted the exported-component and cleartext findings.
 
 ---
 
@@ -11,7 +13,7 @@
 
 ### Axis 1: Correctness
 * **Fall & Man-Down Kinematics (`:detection`)**:
-  * Free-fall valley threshold (`< 3.0 m/s²`), impact shock threshold (`> 28.0 m/s²`), and post-impact stillness duration (`>= 2.0 s`) accurately model human fall biomechanics.
+  * Free-fall threshold (`< 5.0 m/s²`, at least 40 ms), impact threshold (`> 22.0 m/s²` within 800 ms) and post-impact stillness (`2.0 s` near 1 g) are the `DetectorConfig` defaults. Man-down fires after 10 s without movement.
   * Deterministic state resets (`reset()`) prevent stale window accumulator contamination across shifts.
   * Verified: 100% detection on all labelled `fall_*` and `mandown_*` traces, 0/8 false positives on `walk_*`, `sit_*`, and `drop_phone_*`.
 * **State Machine & Protocol (`:protocol`)**:
@@ -20,7 +22,7 @@
   * Countdown cancel transitions directly to `Monitoring`, canceling background timers and dispatch jobs.
 * **Reliable Outbox & Synchronization (`:app`)**:
   * Room database persists alerts with `status = PENDING` before network attempts.
-  * `AlertSyncer` implements exponential backoff retry with jitter (`400ms`, `800ms`, `1600ms`, `2000ms...`), surviving real server outages.
+  * `AlertSyncer` retries with exponential backoff from `RetryPolicy` (1 s, 2 s, 4 s … capped at 15 s, 10 attempts, no jitter). The JVM bot uses a shorter 400 ms start to keep `e2e-jvm.ps1` fast.
   * `AndroidLocationSource` actively listens via `LocationListener` across `GPS_PROVIDER`, `NETWORK_PROVIDER`, and `PASSIVE_PROVIDER` to stream real fixes instead of relying on stale cache.
 
 ### Axis 2: Readability & Simplicity
@@ -43,13 +45,15 @@
   * `SafeSignalAdminReceiver` is protected by `android.permission.BIND_DEVICE_ADMIN`.
   * `READ_PRIVILEGED_PHONE_STATE` is allowlisted via AOSP `/system/etc/permissions/privapp-permissions-com.safesignal.app.xml`.
   * Application backup is disabled (`android:allowBackup="false"`).
-  * Server validates all incoming JSON schemas and rejects invalid coordinates, out-of-range battery percentages, and malformed IDs.
+  * Server rejects unparseable JSON and blank `alertId` / `workerId` with 400. It does not range-check coordinates or battery.
+  * **Open:** `MonitorService`, `SosKeyReceiver` and `FallInjectionReceiver` are `exported="true"` with no permission, so any app can raise, cancel or stop alerts.
+  * **Open:** transport is cleartext HTTP with no authentication (`usesCleartextTraffic="true"`). Details in `security-and-hardening.md`.
 
 ### Axis 5: Performance & Energy
 * **Battery & Power Profile**:
-  * Partial wake lock held in `MonitorService` maintains foreground sensor execution with a safety timeout.
+  * One partial wake lock is held for the whole shift in `MonitorService` (12-hour safety timeout), released when the shift stops.
   * `FLAG_KEEP_SCREEN_ON` on `MainActivity` ensures instant hardware SOS key dispatch on dedicated lone-worker kiosk hardware.
-  * Room outbox queries are optimized with composite indices on `status` and `raisedAtEpochMs`.
+  * Room outbox queries use two single-column indexes, on `status` and on `raisedAtEpochMs`.
 
 ---
 
