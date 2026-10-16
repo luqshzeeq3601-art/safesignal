@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420" role="img" aria-labelledby="t d">
+<title id="t">One fall, end to end</title>
+<desc id="d">Left: acceleration magnitude of fall_forward.csv. Free fall below 5 m/s² for 180 ms, impact of 30.8 m/s², then 2 s lying still; FallDetector fires at 3.68 s. Right: an alert raised while the server was down: 3 s countdown, 9 refused send attempts, delivered on attempt 10, acknowledged 273 ms later.</desc>
+<defs><pattern id="hazard-dark" width="12" height="12" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="12" height="12" fill="#E6EDF3"/><rect width="6" height="12" fill="#F2C230"/></pattern></defs>
+<text x="64.0" y="36.0" fill="#E6EDF3" font-family="'Barlow Condensed','Bahnschrift SemiCondensed','Bahnschrift','Arial Narrow',sans-serif" font-size="15" font-weight="600" text-anchor="start" letter-spacing="0.12em">SENSOR</text>
+<text x="134.0" y="36.0" fill="#9198A1" font-family="'JetBrains Mono','Cascadia Mono',Consolas,'SF Mono',monospace" font-size="12" font-weight="500" text-anchor="start">fall_forward.csv replayed through FallDetector</text>
+<text x="54.0" y="294.0" fill="#9198A1" font-family="'JetBrains Mono','Cascadia Mono',Consolas,'SF Mono',monospace" font-size="11" font-weight="400" text-anchor="end">0</text>
+<text x="54.0" y="235.1" fill="#9198A1" font-family="'JetBrains Mono','Cascadia Mono',Consolas,'SF Mono',monospace" font-size="11" font-weight="400" text-anchor="end">10</text>
+<text x="54.0" y="176.3" fill="#9198A1" font-family="'JetBrains Mono','Cascadia Mono',Consolas,'SF Mono',monospace" font-size="11" font-weight="400" text-anchor="end">20</text>
+<text x="54.0" y="117.4" fill="#9198A1" font-family="'JetBrains Mono','Cascadia Mono',Consolas,'SF Mono',monospace" font-size="11" font-weight="400" text-anchor="end">30</text>
+<text x="54.0" y="70.0" fill="#9198A1" font-family="'JetBrains Mono','Cascadia Mono',Consolas,'SF Mono',monospace" font-size="11" font-weight="400" text-anchor="end">m/s²</text>
+<line x1="64.0" y1="290.0" x2="636.0" y2="290.0" stroke="#3D444D" stroke-width="1.0" opacity="1.0"/>
+<line x1="64.0" y1="260.6" x2="636.0" y2="260.6" stroke="#9198A1" stroke-width="1" opacity="0.8" stroke-dasharray="4 4"/>
+<text x="70.0" y="275.6" fill="#9198A1" font-family="'JetBrains Mono','Cascadia Mono',Consolas,'SF Mono',monospace" font-size="12" font-weight="400" text-anchor="start">free fall below 5</text>
+<line x1="64.0" y1="160.5" x2="636.0" y2="160.5" stroke="#FF6B7D" stroke-width="1" opacity="0.7" stroke-dasharray="4 4"/>
+<text x="70.0" y="153.5" fill="#FF6B7D" font-family="'JetBrains Mono','Cascadia Mono',Consolas,'SF Mono',monospace" font-size="12" font-weight="400" text-anchor="start">impact above 22</text>
+<rect x="249.9" y="84.0" width="315.2" height="206.0" fill="#3D444D" opacity="0.35"/>
+<polyline points="64.0,241.1 67.2,236.9 70.3,232.3 73.5,228.8 76.6,229.8 79.8,225.7 82.9,222.9 86.1,220.6 89.2,217.5 92.4,217.6 95.5,218.9 98.7,217.5 101.8,219.8 105.0,221.6 108.1,222.0 111.3,226.8 114.4,226.8 117.6,232.1 120.7,232.6 123.9,238.4 127.0,240.5 130.2,243.4 133.3,242.3 136.5,243.5 139.6,243.1 142.8,244.0 145.9,243.5 149.1,240.7 152.2,237.4 155.4,233.6 158.5,232.5 161.7,229.7 164.8,226.1 168.0,225.9 171.2,223.1 174.3,222.6 177.5,219.4 180.6,219.6 183.8,218.3 186.9,217.8 190.1,219.1 193.2,221.0 196.4,224.6 199.5,226.0 202.7,230.4 205.8,232.0 209.0,234.9 212.1,239.6 215.3,242.4 218.4,242.8 221.6,279.8 224.7,279.1 227.9,279.0 231.0,280.6 234.2,280.8 237.3,282.4 240.5,281.2 243.6,281.8 246.8,281.2 249.9,114.4 253.1,112.1 256.2,112.8 259.4,109.0 262.5,231.9 265.7,234.4 268.8,231.6 272.0,229.0 275.2,229.5 278.3,235.3 281.5,231.8 284.6,232.1 287.8,232.1 290.9,232.4 294.1,232.2 297.2,232.3 300.4,232.5 303.5,232.4 306.7,232.0 309.8,232.5 313.0,232.3 316.1,232.0 319.3,232.5 322.4,232.3 325.6,232.5 328.7,232.2 331.9,232.4 335.0,232.5 338.2,232.1 341.3,232.0 344.5,232.3 347.6,232.4 350.8,232.3 353.9,232.4 357.1,232.1 360.2,232.0 363.4,232.0 366.5,232.0 369.7,232.4 372.8,232.1 376.0,232.4 379.2,232.5 382.3,232.3 385.5,232.1 388.6,232.1 391.8,232.1 394.9,232.5 398.1,232.5 401.2,232.3 404.4,232.1 407.5,232.1 410.7,232.1 413.8,232.4 417.0,232.3 420.1,232.3 423.3,232.2 426.4,232.1 429.6,232.4 432.7,232.1 435.9,232.1 439.0,232.5 442.2,232.2 445.3,232.2 448.5,232.2 451.6,232.4 454.8,232.4 457.9,232.2 461.1,232.0 464.2,232.1 467.4,232.1 470.5,232.5 473.7,232.2 476.8,232.3 480.0,232.4 483.2,232.5 486.3,232.2 489.5,232.1 492.6,232.2 495.8,232.5 498.9,231.9 502.1,232.3 505.2,232.0 508.4,232.5 511.5,232.4 514.7,232.1 517.8,232.2 521.0,232.5 524.1,232.5 527.3,232.4 530.4,232.2 533.6,232.1 536.7,232.3 539.9,232.2 543.0,232.3 546.2,232.2 549.3,232.0 552.5,232.4 555.6,232.0 558.8,232.5 561.9,232.3 565.1,232.0 568.2,232.2 571.4,232.3 574.5,232.5 577.7,232.4 580.8,232.0 584.0,232.1 587.2,232.4 590.3,232.5 593.5,232.2 596.6,232.2 599.8,232.5 602.9,232.5 606.1,232.3 609.2,232.0 612.4,232.0 615.5,232.2 618.7,232.2 621.8,232.2 625.0,232.1 628.1,232.0 631.3,232.0 634.4,232.0" fill="none" stroke="#E6EDF3" stroke-width="1.5" stroke-linejoin="round"/>
+<circle cx="259.4" cy="109.0" r="4" fill="#FF6B7D"/>
+<text x="268.4" y="113.0" fill="#FF6B7D" font-family="'Barlow Condensed','Bahnschrift SemiCondensed','Bahnschrift','Arial Narrow',sans-serif" font-size="14" font-weight="600" text-anchor="start">impact 30.8 m/s²</text>
+<line x1="565.1" y1="62.0" x2="565.1" y2="290.0" stroke="#FF6B7D" stroke-width="2" opacity="1.0"/>
+<text x="557.1" y="74.0" fill="#FF6B7D" font-family="'Barlow Condensed','Bahnschrift SemiCondensed','Bahnschrift','Arial Narrow',sans-serif" font-size="14" font-weight="600" text-anchor="end">FallDetector fires · 3.68 s</text>
+<path d="M221.6,303.0 V308.0 H249.9 V303.0" fill="none" stroke="#E6EDF3" stroke-width="1.25"/>
+<text x="235.8" y="326.0" fill="#E6EDF3" font-family="'Barlow Condensed','Bahnschrift SemiCondensed','Bahnschrift','Arial Narrow',sans-serif" font-size="14" font-weight="500" text-anchor="middle">free fall</text>
+<text x="235.8" y="341.0" fill="#9198A1" font-family="'JetBrains Mono','Cascadia Mono',Consolas,'SF Mono',monospace" font-size="11" font-weight="400" text-anchor="middle">180 ms</text>
+<path d="M249.9,303.0 V308.0 H565.1 V303.0" fill="none" stroke="#E6EDF3" stroke-width="1.25"/>
+<text x="407.5" y="326.0" fill="#E6EDF3" font-family="'Barlow Condensed','Bahnschrift SemiCondensed','Bahnschrift','Arial Narrow',sans-serif" font-size="14" font-weight="500" text-anchor="middle">lies still</text>
+<text x="407.5" y="341.0" fill="#9198A1" font-family="'JetBrains Mono','Cascadia Mono',Consolas,'SF Mono',monospace" font-size="11" font-weight="400" text-anchor="middle">2 s near 1 g</text>
+<line x1="64.0" y1="370.0" x2="636.0" y2="370.0" stroke="#3D444D" stroke-width="1.0" opacity="1.0"/>
+<line x1="142.8" y1="370.0" x2="142.8" y2="375.0" stroke="#9198A1" stroke-width="1.0" opacity="1.0"/>
+<text x="142.8" y="389.0" fill="#9198A1" font-family="'JetBrains Mono','Cascadia Mono',Consolas,'SF Mono',monospace" font-size="11" font-weight="400" text-anchor="middle">1 s</text>
+<line x1="300.4" y1="370.0" x2="300.4" y2="375.0" stroke="#9198A1" stroke-width="1.0" opacity="1.0"/>
+<text x="300.4" y="389.0" fill="#9198A1" font-family="'JetBrains Mono','Cascadia Mono',Consolas,'SF Mono',monospace" font-size="11" font-weight="400" text-anchor="middle">2 s</text>
+<line x1="457.9" y1="370.0" x2="457.9" y2="375.0" stroke="#9198A1" stroke-width="1.0" opacity="1.0"/>
+<text x="457.9" y="389.0" fill="#9198A1" font-family="'JetBrains Mono','Cascadia Mono',Consolas,'SF Mono',monospace" font-size="11" font-weight="400" text-anchor="middle">3 s</text>
+<line x1="615.5" y1="370.0" x2="615.5" y2="375.0" stroke="#9198A1" stroke-width="1.0" opacity="1.0"/>
+<text x="615.5" y="389.0" fill="#9198A1" font-family="'JetBrains Mono','Cascadia Mono',Consolas,'SF Mono',monospace" font-size="11" font-weight="400" text-anchor="middle">4 s</text>
+<rect x="652.0" y="62.0" width="22.0" height="313.0" fill="url(#hazard-dark)" opacity="1.0"/>
+<text x="692.0" y="36.0" fill="#E6EDF3" font-family="'Barlow Condensed','Bahnschrift SemiCondensed','Bahnschrift','Arial Narrow',sans-serif" font-size="15" font-weight="600" text-anchor="start" letter-spacing="0.12em">ALERT</text>
+<text x="754.0" y="36.0" fill="#9198A1" font-family="'JetBrains Mono','Cascadia Mono',Consolas,'SF Mono',monospace" font-size="12" font-weight="500" text-anchor="start">outage run 2026-10-14, server stopped</text>
+<line x1="692.0" y1="62.0" x2="692.0" y2="210.0" stroke="#FF6B7D" stroke-width="2" opacity="1.0"/>
+<text x="700.0" y="74.0" fill="#FF6B7D" font-family="'Barlow Condensed','Bahnschrift SemiCondensed','Bahnschrift','Arial Narrow',sans-serif" font-size="14" font-weight="600" text-anchor="start">+0 = detection</text>
+<rect x="692.0" y="176.0" width="73.9" height="34.0" fill="#F2C230" opacity="1.0"/>
+<text x="692.0" y="149.0" fill="#F2C230" font-family="'Barlow Condensed','Bahnschrift SemiCondensed','Bahnschrift','Arial Narrow',sans-serif" font-size="14" font-weight="600" text-anchor="start">countdown 3 s</text>
+<text x="692.0" y="164.0" fill="#9198A1" font-family="'JetBrains Mono','Cascadia Mono',Consolas,'SF Mono',monospace" font-size="11" font-weight="400" text-anchor="start">test setting; app default 15 s</text>
+<rect x="765.9" y="176.0" width="369.2" height="34.0" fill="#58A6FF" opacity="0.16"/>
+<line x1="765.9" y1="176.0" x2="1135.1" y2="176.0" stroke="#58A6FF" stroke-width="1.5" opacity="1.0"/>
+<line x1="765.9" y1="210.0" x2="1135.1" y2="210.0" stroke="#58A6FF" stroke-width="1.5" opacity="1.0"/>
+<line x1="761.9" y1="189.0" x2="769.9" y2="197.0" stroke="#9198A1" stroke-width="1.5" opacity="1.0"/>
+<line x1="761.9" y1="197.0" x2="769.9" y2="189.0" stroke="#9198A1" stroke-width="1.5" opacity="1.0"/>
+<line x1="773.6" y1="189.0" x2="781.6" y2="197.0" stroke="#9198A1" stroke-width="1.5" opacity="1.0"/>
+<line x1="773.6" y1="197.0" x2="781.6" y2="189.0" stroke="#9198A1" stroke-width="1.5" opacity="1.0"/>
+<line x1="793.6" y1="189.0" x2="801.6" y2="197.0" stroke="#9198A1" stroke-width="1.5" opacity="1.0"/>
+<line x1="793.6" y1="197.0" x2="801.6" y2="189.0" stroke="#9198A1" stroke-width="1.5" opacity="1.0"/>
+<line x1="833.4" y1="189.0" x2="841.4" y2="197.0" stroke="#9198A1" stroke-width="1.5" opacity="1.0"/>
+<line x1="833.4" y1="197.0" x2="841.4" y2="189.0" stroke="#9198A1" stroke-width="1.5" opacity="1.0"/>
+<line x1="882.8" y1="189.0" x2="890.8" y2="197.0" stroke="#9198A1" stroke-width="1.5" opacity="1.0"/>
+<line x1="882.8" y1="197.0" x2="890.8" y2="189.0" stroke="#9198A1" stroke-width="1.5" opacity="1.0"/>
+<line x1="932.5" y1="189.0" x2="940.5" y2="197.0" stroke="#9198A1" stroke-width="1.5" opacity="1.0"/>
+<line x1="932.5" y1="197.0" x2="940.5" y2="189.0" stroke="#9198A1" stroke-width="1.5" opacity="1.0"/>
+<line x1="982.0" y1="189.0" x2="990.0" y2="197.0" stroke="#9198A1" stroke-width="1.5" opacity="1.0"/>
+<line x1="982.0" y1="197.0" x2="990.0" y2="189.0" stroke="#9198A1" stroke-width="1.5" opacity="1.0"/>
+<line x1="1031.4" y1="189.0" x2="1039.4" y2="197.0" stroke="#9198A1" stroke-width="1.5" opacity="1.0"/>
+<line x1="1031.4" y1="197.0" x2="1039.4" y2="189.0" stroke="#9198A1" stroke-width="1.5" opacity="1.0"/>
+<line x1="1080.8" y1="189.0" x2="1088.8" y2="197.0" stroke="#9198A1" stroke-width="1.5" opacity="1.0"/>
+<line x1="1080.8" y1="197.0" x2="1088.8" y2="189.0" stroke="#9198A1" stroke-width="1.5" opacity="1.0"/>
+<text x="765.9" y="232.0" fill="#58A6FF" font-family="'Barlow Condensed','Bahnschrift SemiCondensed','Bahnschrift','Arial Narrow',sans-serif" font-size="14" font-weight="600" text-anchor="start">sending · server down</text>
+<text x="765.9" y="247.0" fill="#9198A1" font-family="'JetBrains Mono','Cascadia Mono',Consolas,'SF Mono',monospace" font-size="11" font-weight="400" text-anchor="start">9 attempts refused, backoff 0.5 → 2.0 s</text>
+<circle cx="1135.1" cy="193.0" r="6" fill="#58A6FF"/>
+<line x1="1135.1" y1="172.0" x2="1135.1" y2="106.0" stroke="#58A6FF" stroke-width="1" opacity="1.0"/>
+<text x="1135.1" y="98.0" fill="#58A6FF" font-family="'Barlow Condensed','Bahnschrift SemiCondensed','Bahnschrift','Arial Narrow',sans-serif" font-size="14" font-weight="600" text-anchor="end">delivered on attempt 10</text>
+<text x="1135.1" y="114.0" fill="#9198A1" font-family="'JetBrains Mono','Cascadia Mono',Consolas,'SF Mono',monospace" font-size="11" font-weight="400" text-anchor="end">15.0 s after raise</text>
+<circle cx="1141.8" cy="193.0" r="7" fill="none" stroke="#3FB950" stroke-width="2"/>
+<line x1="1141.8" y1="214.0" x2="1141.8" y2="262.0" stroke="#3FB950" stroke-width="1" opacity="1.0"/>
+<text x="1141.8" y="278.0" fill="#3FB950" font-family="'Barlow Condensed','Bahnschrift SemiCondensed','Bahnschrift','Arial Narrow',sans-serif" font-size="14" font-weight="600" text-anchor="end">acknowledged</text>
+<text x="1141.8" y="293.0" fill="#9198A1" font-family="'JetBrains Mono','Cascadia Mono',Consolas,'SF Mono',monospace" font-size="11" font-weight="400" text-anchor="end">+273 ms after delivery</text>
+<line x1="692.0" y1="370.0" x2="1160.0" y2="370.0" stroke="#3D444D" stroke-width="1.0" opacity="1.0"/>
+<line x1="692.0" y1="370.0" x2="692.0" y2="375.0" stroke="#9198A1" stroke-width="1.0" opacity="1.0"/>
+<text x="692.0" y="389.0" fill="#9198A1" font-family="'JetBrains Mono','Cascadia Mono',Consolas,'SF Mono',monospace" font-size="11" font-weight="400" text-anchor="middle">+0 s</text>
+<line x1="815.2" y1="370.0" x2="815.2" y2="375.0" stroke="#9198A1" stroke-width="1.0" opacity="1.0"/>
+<text x="815.2" y="389.0" fill="#9198A1" font-family="'JetBrains Mono','Cascadia Mono',Consolas,'SF Mono',monospace" font-size="11" font-weight="400" text-anchor="middle">+5 s</text>
+<line x1="938.3" y1="370.0" x2="938.3" y2="375.0" stroke="#9198A1" stroke-width="1.0" opacity="1.0"/>
+<text x="938.3" y="389.0" fill="#9198A1" font-family="'JetBrains Mono','Cascadia Mono',Consolas,'SF Mono',monospace" font-size="11" font-weight="400" text-anchor="middle">+10 s</text>
+<line x1="1061.5" y1="370.0" x2="1061.5" y2="375.0" stroke="#9198A1" stroke-width="1.0" opacity="1.0"/>
+<text x="1061.5" y="389.0" fill="#9198A1" font-family="'JetBrains Mono','Cascadia Mono',Consolas,'SF Mono',monospace" font-size="11" font-weight="400" text-anchor="middle">+15 s</text>
+</svg>

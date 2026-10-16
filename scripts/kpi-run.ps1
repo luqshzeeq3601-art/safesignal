@@ -183,7 +183,7 @@ if (-not [string]::IsNullOrEmpty($AppEventsPath)) {
         $batteryWatch = [System.Diagnostics.Stopwatch]::StartNew()
 
         adb shell am start -W -n "$pkg/.MainActivity" 2>&1 | Out-Null
-        adb shell am start-foreground-service -a com.safesignal.app.START_MONITORING "$pkg/.service.MonitorService" 2>&1 | Out-Null
+        adb shell am broadcast -a com.safesignal.app.START_MONITORING -p $pkg 2>&1 | Out-Null
         Start-Sleep -Seconds 3
 
         # Set GPS location on emulator while monitoring service is active and listening

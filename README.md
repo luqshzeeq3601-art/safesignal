@@ -1,113 +1,153 @@
 # SafeSignal — Lone Worker Emergency Beacon
 
-[![Build & Test](https://img.shields.io/badge/Gradle_Build-111_Tasks_Passed-brightgreen.svg)](#verification--test-results)
-[![Android Lint](https://img.shields.io/badge/Android_Lint-0_Errors-brightgreen.svg)](#verification--test-results)
-[![E2E Outbox](https://img.shields.io/badge/E2E_Outbox-100%25_Delivered-success.svg)](#verification--test-results)
-[![SLA Compliance](https://img.shields.io/badge/SLA_Compliance-EN_50518%20%2F%20BS_8484-blue.svg)](#production-kpi-scoreboard)
+[![CI](https://github.com/luqshzeeq3601-art/safesignal/actions/workflows/ci.yml/badge.svg)](https://github.com/luqshzeeq3601-art/safesignal/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-An enterprise-grade, offline-first Android lone worker emergency beacon. It monitors physical sensors for sudden impacts (man-down) or worker unresponsiveness, manages a 30-second abort countdown with pre-alert screen wakeups, and reliably guarantees distress delivery with GPS coordinates to an emergency dispatch console via an SQLite outbox.
+An offline-first Android beacon for people who work alone. It watches the accelerometer for a fall or for a worker who stops moving, gives the worker a countdown to cancel, then sends the alert with GPS location and battery level to a dispatcher console. Alerts wait in a Room (SQLite) outbox and are retried until the server confirms delivery, so a network outage delays an alert but does not lose it.
 
----
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/images/hero-fall-dark.svg">
+  <img alt="Left: acceleration of a recorded forward fall. Free fall below 5 m/s², an impact of 30.8 m/s², then 2 s lying still before FallDetector fires at 3.68 s. Right: an alert raised while the server was down: 3 s countdown, 9 refused send attempts, delivered on attempt 10 and acknowledged 273 ms later." src="docs/images/hero-fall-light.svg">
+</picture>
 
-## Production KPI Scoreboard
-
-All core operational performance indicators are automated and verified via `scripts/kpi-run.ps1`.
-
-![SafeSignal KPI Verification Dashboard](docs/images/screenshot-kpi-scoreboard.png)
-
-| Operational SLA Gate | Compliance Target | Verified Metric | Result | Reference Benchmark |
-|---|---|---|---|---|
-| **SOS-to-Ack Transit Latency** | `< 2,500 ms` | **1,120 ms** | **PASS** | TLS 1.3 / MQTT Ingestion API |
-| **Shift Battery Consumption** | `< 2.50% / hr` | **1.70% / hr** | **PASS** | 10-min `power_profile.xml` Extrapolation |
-| **Man-Down Detection TPR** | `> 95.0%` | **98.0%** (39/40) | **PASS** | 40 Drop / Walk / Sit Synthetic Traces |
-| **False-Alarm Cancellation** | Interactive Flow | **9.1%** (2/22) | **VERIFIED** | Simulated User Abort (`ACTION_CANCEL`) |
+<sub>Left: `fall_forward.csv` replayed through the real `FallDetector`. Right: the alert raised during the server outage in the 2026-10-14 run (`scripts/kpi-run.ps1 -Quick`; data in [`docs/evidence/alert-outage-timeline-2026-10-14.csv`](docs/evidence/alert-outage-timeline-2026-10-14.csv)). Regenerate with `python scripts/render-docs.py`.</sub>
 
 ---
 
-## System Architecture & Data Flow
+## How an alert travels
 
-SafeSignal utilizes an offline-first architecture to ensure emergency alerts are never dropped during cellular outages or server downtime.
+```mermaid
+sequenceDiagram
+    actor W as Worker
+    participant D as FallDetector / ManDownDetector
+    participant C as AlertController
+    participant O as Room outbox
+    participant S as AlertSyncer
+    participant K as Ktor server
+    actor P as Dispatcher
 
-![SafeSignal Architecture Pipeline](docs/images/screenshot-system-architecture.png)
-
-### Key Architectural Pillars:
-- **Dedicated Hardware SOS Key**: Intercepts scancodes even while sleeping; triggers `FLAG_KEEP_SCREEN_ON` and keyguard dismiss in enterprise kiosk mode.
-- **Man-Down Fall Engine**: Accelerometer buffer with dynamic sampling (5 Hz idle -> 50 Hz on shock -> 30s post-fall immobility verification).
-- **Dual-Tier GPS Engine**: Continuously caches passive fixes and requests high-accuracy satellite fix on panic triggers.
-- **Persistent SQLite Outbox**: Room database with composite indices on `(status, raisedAtEpochMs)` guaranteeing FIFO transmission and exponential backoff retry.
-
----
-
-## Chaos Resilience & Verification
-
-### E2E Outbox Outage & Recovery Run
-Verified using `scripts/e2e-jvm.ps1`. When the dispatch backend suffers a simulated outage, all emergency signals are buffered locally in SQLite and flushed cleanly upon reconnection with zero data loss.
-
-![E2E Outbox Chaos Terminal Run](docs/images/screenshot-e2e-terminal.png)
-
-### Multi-Module Test Suite & Lint
-Full test suite executing unit tests, serialization contracts, Room migration tests, and Android debug linter passes cleanly with zero warnings or errors.
-
-![Gradle Build and Regression Verification Suite](docs/images/screenshot-test-suite.png)
-
----
-
-## Agent-Skills Specialized Audits
-
-In accordance with our engineering verification standard (utilizing patterns from `addyosmani/agent-skills`), 4 multi-axis audits were executed on the codebase:
-
-1. **[Code Quality & Multi-Axis Review](docs/audits/code-review-and-quality.md)**
-   - Audit across correctness, maintainability, architectural consistency, error handling, and performance.
-   - Clean separation between presentation (`:app`), domain (`:shared`), server (`:server`), and analytics (`:kpi`).
-2. **[Security & Privileged App Hardening](docs/audits/security-and-hardening.md)**
-   - STRIDE threat modeling of physical SOS broadcasts and device admin kiosk controls.
-   - Cloud backup disabled (`android:allowBackup="false"`) protecting sensitive GPS logs.
-3. **[Battery & Performance Optimization](docs/audits/performance-optimization.md)**
-   - Dynamic sensor delay configuration reducing idle sensor drain by > 65%.
-   - Composite Room database indices reducing outbox query latencies to `< 2.4 ms`.
-4. **[Regression & Test-Driven Verification](docs/audits/test-verification.md)**
-   - Automated 111-task test matrix covering fall physics, network chaos, and false-alarm cancellation paths.
-
----
-
-## Quickstart & Verification Commands
-
-### Requirements
-- JDK 17
-- PowerShell 7 (`pwsh`) on Windows 11 or Linux
-- Android SDK (installed via `scripts/setup-sdk.ps1`)
-
-### Run Verification Pipelines
-```powershell
-# 1. Run all unit tests across all Gradle modules
-.\gradlew.bat test
-
-# 2. Run Android debug static linter
-.\gradlew.bat :app:lintDebug
-
-# 3. Run E2E Outbox Chaos Test (Outage & Recovery)
-.\scripts\e2e-jvm.ps1
-
-# 4. Run Full Operational KPI Benchmark
-.\scripts\kpi-run.ps1 -Quick
+    W->>D: falls, or stops moving for 10 s
+    D->>C: DetectionEvent (FALL / MAN_DOWN)
+    C->>W: countdown, 15 s by default
+    alt worker presses Cancel
+        C->>O: CANCELLED history row, nothing sent
+    else countdown runs out (or SOS key pressed)
+        C->>O: PENDING row with location and battery
+        loop until delivered: up to 10 attempts, backoff 1 s to 15 s
+            S->>K: POST /api/alerts
+        end
+        K-->>S: 201 Created (200 if the alertId was already received)
+        S->>O: SENT
+        P->>K: console polls every 2 s, presses Ack
+        loop every 3 s
+            S->>K: GET /api/alerts/{id}
+        end
+        K-->>S: ACKNOWLEDGED
+        S->>O: ACKNOWLEDGED
+    end
 ```
 
+Every step above is one transition of a pure state machine in `:protocol`. See the [state diagram](ARCHITECTURE.md#alert-state-machine).
+
 ---
 
-## Repository Documentation
+## Detection
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/images/traces-dark.svg">
+  <img alt="Thirteen labelled accelerometer traces replayed through the detectors. The four falls and the collapse raise an alert; three phone drops, two sit-downs and three walks do not." src="docs/images/traces-light.svg">
+</picture>
+
+- **Fall:** free fall below 5 m/s², an impact above 22 m/s² within 800 ms, then 2 s lying still near 1 g. A dropped phone that is picked up fails the stillness check.
+- **Man-down:** no movement for 10 s.
+- The traces are synthetic, generated by `scripts/gen-traces.ps1`. Thresholds are the defaults in `DetectorConfig.java`.
+
+---
+
+## Measured results
+
+From the device-mode run on the emulator, 2026-10-14 ([`docs/evidence/reverification-2026-10-14.txt`](docs/evidence/reverification-2026-10-14.txt)).
+
+| KPI | Target | Measured | Notes |
+|---|---|---|---|
+| Raise-to-delivery latency | p50 < 5 s, p95 < 15 s | p50 539 ms, p95 548 ms | 20 alerts; the countdown (3 s in this run) is reported separately |
+| Delivery success | ≥ 95% within 60 s | 100% (20/20) | 95% on the first attempt; the first alert was raised during a server outage |
+| False-alarm cancellation | < 15% | 9.1% (2/22) | 2 scripted cancellations, not real worker data |
+| Detector false positives | 0 | 0 of 8 non-fall traces | lab traces above |
+| Battery | < 5.0 mAh/h | 1.49 mAh/h | emulator `power_profile.xml` estimate over 10 min, not a hardware measurement |
+
+---
+
+## Architecture
+
+```mermaid
+flowchart LR
+    subgraph android["Android"]
+        app[":app<br/>Kotlin, Compose, Room, Hilt"]
+        overlay[":overlay<br/>resource overlay, XML only"]
+    end
+    subgraph jvm["Pure JVM, no Android imports"]
+        detection[":detection<br/>Java"]
+        protocol[":protocol<br/>messages, state machine, retry"]
+        server[":server<br/>Ktor + dispatcher console"]
+        bot[":bot<br/>fake worker CLI"]
+        kpi[":kpi<br/>reads KPI CSVs"]
+    end
+    app --> detection
+    app --> protocol
+    server --> protocol
+    bot --> protocol
+```
+
+- **SOS key:** scancode 88 is remapped to `KEYCODE_F12` with the wake flag (`aosp/qwerty2.kl`). `MainActivity` keeps the screen on during a shift so the first press raises the alert.
+- **Sensors:** accelerometer at about 50 Hz (`SENSOR_DELAY_GAME`). Location comes from `LocationManager` GPS, network and passive listeners, because the AOSP image has no Play services.
+- **Outbox:** the Room `alerts` table, indexed on `status` and `raisedAtEpochMs`. `PENDING` rows are retried by `AlertSyncer`. The client-generated `alertId` makes a retried POST safe.
+- **Kiosk:** the app is Device Owner and runs in lock-task mode with the keyguard kept.
+
+Detail: [ARCHITECTURE.md](ARCHITECTURE.md) · data shapes: [Data.md](Data.md).
+
+---
+
+## Run it
+
+Requires JDK 17, PowerShell 7 and the Android SDK (API 34) for `:app`. Python 3.10+ is only needed to regenerate the charts.
+
+```powershell
+# Unit tests for every module
+.\gradlew.bat test
+
+# Android lint
+.\gradlew.bat :app:lintDebug
+
+# End-to-end on the JVM: real server outage, bot retries until delivered
+.\scripts\e2e-jvm.ps1
+
+# KPI report without a device (battery not measured)
+.\scripts\kpi-run.ps1 -Quick
+
+# Redraw docs/images from traces, detector and evidence
+python scripts/render-docs.py
+```
+
+CI runs the JVM and app unit tests, lint, `e2e-jvm.ps1` and `kpi-run.ps1 -Quick` on every push ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)).
+
+---
+
+## Repository documentation
 
 | Document | Purpose |
 |---|---|
-| [PRD.md](PRD.md) | Product Requirements, Problem Statement, Milestones |
-| [ARCHITECTURE.md](ARCHITECTURE.md) | Full System Architecture & Tech Stack Details |
-| [ARCHITECTURE-ESSENTIALS.md](ARCHITECTURE-ESSENTIALS.md) | Condensed Rules & Component Boundaries |
-| [Data.md](Data.md) | SQLite Schemas, Network Payloads, and KPI Model |
-| [Security.md](Security.md) | Safety Rules & Device Admin Permissions |
-| [docs/audits/](docs/audits/) | Comprehensive Quality, Security, Battery, and Test Audits |
+| [PRD.md](PRD.md) | Problem, objectives, milestones |
+| [ARCHITECTURE.md](ARCHITECTURE.md) | Modules, layers, state machine, key decisions |
+| [ARCHITECTURE-ESSENTIALS.md](ARCHITECTURE-ESSENTIALS.md) | The rules to keep on every change |
+| [Data.md](Data.md) | Alert JSON, server API, Room table, KPI CSVs |
+| [Security.md](Security.md) | Secrets, device admin, permissions |
+| [docs/evidence/](docs/evidence/) | Saved output of every milestone check |
+| [docs/debugging/](docs/debugging/) | Root-cause write-ups |
+| [docs/audits/](docs/audits/) | Quality, security, performance and test audits |
 
 ---
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
+MIT. See [LICENSE](LICENSE).
