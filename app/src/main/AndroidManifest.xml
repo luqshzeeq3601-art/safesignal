@@ -48,23 +48,11 @@
         <service
             android:name=".service.MonitorService"
             android:foregroundServiceType="location"
-            android:exported="true" />
+            android:exported="false" />
 
         <receiver
             android:name=".service.SosKeyReceiver"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="com.safesignal.app.SOS_KEY" />
-            </intent-filter>
-        </receiver>
-
-        <receiver
-            android:name=".service.FallInjectionReceiver"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="com.safesignal.app.INJECT_FALL" />
-            </intent-filter>
-        </receiver>
+            android:exported="false" />
 
     </application>
 

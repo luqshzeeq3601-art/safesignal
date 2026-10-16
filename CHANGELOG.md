@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Exported components locked down (2026-10-16)
+
+- `MonitorService` and `SosKeyReceiver` are no longer exported. `FallInjectionReceiver` moved to the debug source set and requires `android.permission.DUMP`, which adb's shell user has and third-party apps cannot get. `e2e.ps1`, `inject-fall.ps1` and `kpi-run.ps1` start monitoring through that receiver. Evidence in `docs/evidence/exported-components-*-2026-10-16.txt`.
+
 ### Objective re-verification fixes (2026-10-14)
 
 - `scripts/e2e-jvm.ps1`: the retry proof now uses a real server outage (server stopped before the bot's first alert, restarted while it retries) instead of a simulated failure in the bot. Added `-Count` and `-KpiCsv`.
