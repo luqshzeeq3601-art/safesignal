@@ -1,47 +1,53 @@
 # Regression & Test-Driven Verification Report
 
 **Project:** SafeSignal Lone Worker Emergency Beacon  
-**Date:** October 2026  
-**Methodology:** Test-Driven Development (TDD), Doubt-Driven Adversarial Testing, Network Chaos Testing  
-**Scope:** Unit Tests, Domain & Shared Models, Outbox Network Retries, Scripted JVM Simulation, AOSP Kiosk Integration
+**Date:** October 2026 (claims re-checked against the code and evidence on 2026-10-16)  
+**Scope:** JVM and Android unit tests, instrumented tests, JVM outage simulation, KPI pipeline, emulator end-to-end gates
+
+> **Correction (2026-10-16).** An earlier version cited "111 Gradle tasks", "10 lint tasks", "9 retries", a `:shared` module, test classes that do not exist (`AlertPayloadTest`, `OutboxQueueTest`, `FallDetectionAlgorithmTest`), `QUEUED` / `TRANSMITTING` statuses and a 30-second stillness window. This version counts `@Test` methods in the source and quotes the saved evidence.
 
 ---
 
 ## 1. Executive Summary
 
-| Verification Suite | Target | Executed Tasks | Result | Pass Rate |
+| Suite | Command | Size | Result | Evidence |
 |---|---|---|---|---|
-| **JVM Unit & Domain Tests** | 100% Pass | 111 Gradle Tasks | **PASS** | 100% |
-| **Android Lint Debug** | 0 Errors | 10 Tasks | **PASS** | 100% |
-| **Outbox Chaos / Server Outage** | 100% Guaranteed Delivery | 5 Alerts across Outage | **PASS** | 100% (5/5 ack, 9 retries) |
-| **KPI Verification Pipeline** | 4/4 SLAs Green | 4 Metric Gates | **PASS** | 100% |
+| **JVM & Android unit tests** | `.\gradlew.bat test` | 78 tests in 6 modules | PASS | CI, `docs/evidence/m1`–`m8` |
+| **Instrumented tests** | `.\gradlew.bat :app:connectedDebugAndroidTest` | 10 tests (emulator, not in CI) | PASS | `docs/evidence/m6-data-layer.txt`, `m8-ui-and-history.txt` |
+| **Android lint** | `.\gradlew.bat :app:lintDebug` | — | PASS | CI, `docs/evidence/m15-ci-pipeline.txt` |
+| **Server outage (JVM)** | `scripts/e2e-jvm.ps1` | 5 alerts | PASS: 5/5 delivered, 5/5 acknowledged, 5 retries | `docs/evidence/reverification-2026-10-14.txt` |
+| **KPI pipeline (device mode)** | `scripts/kpi-run.ps1` | 4 KPIs, 22 alerts | PASS 4/4 | `docs/evidence/reverification-2026-10-14.txt` |
 
 ---
 
 ## 2. Test Execution Breakdown
 
-### 2.1 Domain & Unit Testing (`./gradlew.bat test`)
-- **Shared Module (`:shared`)**:
-  - `AlertPayloadTest`: JSON schema serialization, precision truncation, null-safety checks.
-  - `OutboxQueueTest`: FIFO ordering, status transition validation (`QUEUED` -> `TRANSMITTING` -> `ACKNOWLEDGED`).
-  - `FallDetectionAlgorithmTest`: Simulated drop acceleration curves, impact vector thresholds, and 30-second stillness windows.
-- **Server Module (`:server`)**:
-  - Endpoints validate alert ingestion, duplicate deduplication by alert UUID, and dispatch ACK responses.
+### 2.1 Unit tests (`.\gradlew.bat test`)
 
-### 2.2 Network Chaos & Outage Simulation (`scripts/e2e-jvm.ps1`)
-Simulates real-world cellular signal loss in remote areas or server downtime:
-1. Server started and ingests initial alert.
-2. In-flight server killed to simulate backend crash or cellular dead zone.
-3. 4 subsequent emergency alerts generated while offline. Outbox persists all alerts into SQLite.
-4. Server brought back online.
-5. Outbox retry daemon wakes, executes exponential backoff, reconnects, and delivers all 4 queued alerts.
-6. **Result**: 5/5 alerts delivered, 5/5 acknowledged, 9 retries handled gracefully without data loss.
+| Module | Tests | Test classes | What they cover |
+|---|---|---|---|
+| `:detection` | 18 | `AccelSampleTest`, `DetectorConfigTest`, `FallDetectorTest`, `ManDownDetectorTest` | All 13 labelled traces; free fall without impact, impact without free fall, one-sample glitches, movement during the 2 s stillness window. |
+| `:protocol` | 24 | `AlertStateMachineTest`, `RetryPolicyTest`, `AlertMessageJsonTest`, `AlertApiTest` | Every state-machine transition, backoff (1 s to 15 s, 10 attempts), JSON round-trip, HTTP client against a mock engine. |
+| `:server` | 11 | `AlertStoreTest`, `ServerApiTest` | 201 new / 200 duplicate `alertId` / 400 invalid, acknowledgement, `alerts.jsonl` persistence. |
+| `:bot` | 3 | `WorkerBotTest` | Send, retry and ack polling. |
+| `:kpi` | 5 | `KpiTest` | CSV parsing and KPI maths (first `DELIVERED` per alert, exact `attempt=1`). |
+| `:app` | 17 | `AlertControllerTest`, `AlertRepositoryTest`, `AlertSyncerTest`, `KpiLoggerTest` | Effects run by the controller, outbox status changes (`PENDING` → `SENT` → `ACKNOWLEDGED`, or `CANCELLED`), retry loop with a fake clock. |
 
-### 2.3 False-Alarm Abort Verification (`scripts/kpi-run.ps1`)
-- Previous baseline recorded 0/20 false-alarm rates without user intervention.
-- Hardened test harness explicitly injects 2 user cancellation events (`ACTION_CANCEL`) during pre-alert countdowns.
-- **Result**: Measured false-alarm cancellation rate of 9.1% (2/22 alerts cancelled), validating the cancel protocol.
+Instrumented (`:app:connectedDebugAndroidTest`, 10 tests): `AlertDaoTest` (Room queries on a real SQLite database) and `SafeSignalUiTest` (Compose status and history screens).
 
-### 2.4 GPS Freshness Gate
-- Replaced static mock fallback assertions with explicit coordinate verification (`37.7749, -122.4194`).
-- Script asserts that stale default coordinates (`3.139, 101.6869`) are discarded once a valid sensor fix is acquired.
+### 2.2 Server outage simulation (`scripts/e2e-jvm.ps1`)
+1. Start the Ktor server and wait for `/health`.
+2. Stop the server.
+3. Start the bot. Its first alert fails against the stopped server.
+4. Restart the server while the bot is retrying.
+5. **Result (2026-10-14):** the first alert was delivered on attempt 6 after 5 refused attempts; the other 4 were delivered on the first attempt. 5/5 delivered, 5/5 acknowledged.
+
+The bot drives the real `AlertStateMachine` and `RetryPolicy` (with a shorter 400 ms initial backoff) against the real server. It does not use the app's Room outbox; the outbox retry path is covered by `AlertSyncerTest` and by the emulator run below.
+
+### 2.3 False-alarm cancellation (`scripts/kpi-run.ps1`)
+- The device-mode run injects 2 falls and sends `com.safesignal.app.CANCEL` during the countdown.
+- **Result:** 2 of 22 detections cancelled (9.1%, target < 15%), and no alert was sent for either. This proves the cancel path works; it is not a measure of real worker behaviour.
+
+### 2.4 GPS gate (`scripts/e2e.ps1`)
+- Gate 3 injects an emulator fix after `MonitorService` starts and requires the alert to carry `37.7749, -122.4194` (within 0.05°).
+- It fails if the alert carries the hard-coded fallback `3.139, 101.6869`.
