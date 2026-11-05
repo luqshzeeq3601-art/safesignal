@@ -18,11 +18,13 @@ Short version: `ARCHITECTURE-ESSENTIALS.md`. Data shapes: `Data.md`.
 
 ### Dependency direction
 
-```
-:app ──► :detection
-  └────► :protocol ◄── :server
-                   ◄── :bot
-:kpi (stand-alone, reads CSV files only)
+```mermaid
+flowchart LR
+    app[":app"] --> detection[":detection"]
+    app --> protocol[":protocol"]
+    server[":server"] --> protocol
+    bot[":bot"] --> protocol
+    kpi[":kpi<br/>stand-alone, reads CSV files only"]
 ```
 
 `:detection` and `:protocol` depend on nothing Android, so they are tested on the JVM in seconds.
@@ -44,37 +46,53 @@ Every data source is an interface bound by Hilt, so tests swap in fakes.
 
 ## Data flow
 
-```
-accelerometer ─► SensorSource ─► MonitorService ─► FallDetector / ManDownDetector (Java)
-                                                        │ DetectionEvent
-hardware key ─► SosKeyReceiver ───────────────► AlertController ◄── StatusViewModel (Cancel / SOS button)
-                                                        │ runs AlertStateMachine
-                                 ┌──────────────────────┼─────────────────────┐
-                                 ▼                      ▼                     ▼
-                         StateFlow<AlertState>   AlertRepository          KpiLogger
-                         (ViewModels observe)    ├─ Room `alerts` (history, outbox)
-                                                 └─ AlertSyncer ─HTTP─► Ktor server ◄─ dispatcher console
-                                                        ▲  poll for ack ─────┘            (poll + Ack button)
+```mermaid
+flowchart LR
+    accel([accelerometer]) --> sensor[SensorSource] --> monitor[MonitorService] --> detectors["FallDetector /<br/>ManDownDetector (Java)"]
+    key([hardware key]) --> sos[SosKeyReceiver]
+    detectors -- DetectionEvent --> controller[["AlertController<br/>runs AlertStateMachine"]]
+    sos --> controller
+    vm[StatusViewModel<br/>Cancel / SOS button] --> controller
+    controller --> flow["StateFlow#lt;AlertState#gt;<br/>ViewModels observe"]
+    controller --> kpilog[KpiLogger]
+    controller --> repo[AlertRepository]
+    repo --> room[("Room alerts<br/>history + outbox")]
+    repo --> syncer[AlertSyncer]
+    syncer -- "POST, then poll for ack" --> server[Ktor server]
+    console([dispatcher console<br/>poll + Ack button]) --> server
 ```
 
 ## Alert state machine
 
 `AlertStateMachine.transition(state, event) → (newState, effects)` is a pure function in `:protocol`. No I/O, so each transition is one unit test.
 
+```mermaid
+stateDiagram-v2
+    [*] --> Idle
+    Idle --> Monitoring: StartShift
+    Monitoring --> Idle: StopShift
+    Monitoring --> Countdown: Detected (FALL or MAN_DOWN)
+    Monitoring --> Sending: SosPressed, no countdown
+    Countdown --> Monitoring: CancelPressed, CANCELLED history row
+    Countdown --> Sending: CountdownExpired or SosPressed
+    Sending --> Sending: DeliveryFailed, ScheduleRetry(attempt + 1)
+    Sending --> Sent: DeliverySucceeded
+    Sent --> Acknowledged: AckReceived
+    Sending --> Monitoring: Reset
+    Sent --> Monitoring: Reset
+    Acknowledged --> Monitoring: Reset
+
+    classDef quiet fill:#F6F8FA,stroke:#59636E,color:#1B1F24
+    classDef countdown fill:#F2C230,stroke:#7A5A00,color:#1B1F24
+    classDef sending fill:#DCEBFA,stroke:#005EB8,color:#1B1F24
+    classDef acked fill:#D6F0DE,stroke:#00843D,color:#1B1F24
+    class Idle, Monitoring quiet
+    class Countdown countdown
+    class Sending, Sent sending
+    class Acknowledged acked
 ```
-            StartShift              Detected(FALL|MAN_DOWN)
-   Idle ───────────────► Monitoring ───────────────────────► Countdown(type, secondsLeft)
-    ▲                     ▲   ▲  │                               │        │
-    │ StopShift           │   │  │ SosPressed                    │        │ CancelPressed
-    └─────────────────────┘   │  │ (no countdown)   CountdownExpired      ▼
-                              │  ▼                  or SosPressed    Monitoring (+ CANCELLED history row)
-                    Reset     │ Sending(alertId, attempt) ◄──────────┘
-                              │    │   ▲
-                              │    │   └─ DeliveryFailed → effect ScheduleRetry(attempt+1)
-                              │    │ DeliverySucceeded
-                              │    ▼
-                       Acknowledged ◄── AckReceived ── Sent(alertId)
-```
+
+Colours match the charts in `docs/images/`: yellow can still be cancelled, blue is on its way to the server, green has been acknowledged by a dispatcher.
 
 - One active alert at a time: detections and SOS presses are ignored in `Sending`, `Sent`, `Acknowledged`.
 - `StopShift` is ignored while an alert is active.

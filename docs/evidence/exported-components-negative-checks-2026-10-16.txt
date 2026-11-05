@@ -1,0 +1,40 @@
+=== Exported-components lockdown checks (emulator aosp_api34, adb uid: 2000) 2026-10-16 ===
+
+--- 1. MonitorService is no longer startable from outside the app ---
+Starting service: Intent { act=com.safesignal.app.STOP_MONITORING cmp=com.safesignal.app/.service.MonitorService }
+Error: Requires permission not exported from uid 10141
+Starting service: Intent { act=com.safesignal.app.RESET cmp=com.safesignal.app/.service.MonitorService }
+Error: Requires permission not exported from uid 10141
+
+--- 2. SOS_KEY broadcast has no exported receiver ---
+No receivers found
+
+--- 3. Debug receiver is guarded by android.permission.DUMP ---
+com.safesignal.app/.service.FallInjectionReceiver
+      com.safesignal.app.INJECT_FALL:
+        13920ae com.safesignal.app/.service.FallInjectionReceiver filter 1dc1e4f
+          Action: "com.safesignal.app.INJECT_FALL"
+          Action: "com.safesignal.app.START_MONITORING"
+      androidx.profileinstaller.action.SAVE_PROFILE:
+        a7a99ba com.safesignal.app/androidx.profileinstaller.ProfileInstallReceiver filter 8697061
+--
+      com.safesignal.app.START_MONITORING:
+        13920ae com.safesignal.app/.service.FallInjectionReceiver filter 1dc1e4f
+          Action: "com.safesignal.app.INJECT_FALL"
+          Action: "com.safesignal.app.START_MONITORING"
+
+Domain verification status:
+
+--- 4. DUMP protection level (not grantable to third-party apps) ---
+Permissions:
+  Permission [android.permission.DUMP] (e2343ea):
+    uid=1000 gids=[] type=0 prot=signature|privileged|development
+    perm=PermissionInfo{4b166db android.permission.DUMP}
+    installPermissionsFixed=false
+    installPermissionsFixed=false
+    installPermissionsFixed=false
+    installPermissionsFixed=false
+    installPermissionsFixed=false
+    installPermissionsFixed=false
+    installPermissionsFixed=false
+    installPermissionsFixed=true

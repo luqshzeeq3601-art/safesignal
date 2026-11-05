@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+### Exported components locked down (2026-10-16)
+
+- `MonitorService` and `SosKeyReceiver` are no longer exported. `FallInjectionReceiver` moved to the debug source set and requires `android.permission.DUMP`, which adb's shell user has and third-party apps cannot get. `e2e.ps1`, `inject-fall.ps1` and `kpi-run.ps1` start monitoring through that receiver. Evidence in `docs/evidence/exported-components-*-2026-10-16.txt`.
+
+### Documentation visuals from real data (2026-10-16)
+
+- README rewritten so every claim matches the code and `docs/evidence/`. Removed claims with no backing: MQTT, TLS 1.3, SMS gateways, map webhook, EN 50518 / BS 8484 compliance, 40 traces / 98% TPR, 1,120 ms latency, 1.70%/hr battery, a 30 s countdown (default is 15 s), dynamic 5 Hz to 50 Hz sampling and a composite index.
+- Replaced the PIL-drawn mock screenshots (`scripts/generate_readme_screenshots.py`, `docs/images/screenshot-*.png`) with SVG charts drawn by `scripts/render-docs.py` from the trace CSVs, the real `:detection` classes (`scripts/TraceVerdicts.java`), `DetectorConfig` defaults and `docs/evidence/alert-outage-timeline-2026-10-14.csv`. Light and dark variants.
+- ASCII diagrams in `ARCHITECTURE.md` and `Data.md` are now Mermaid (state machine, module dependencies, data flow, data relationships). README adds an alert sequence diagram.
+- `docs/audits/` corrected against the code and evidence, each with a correction note: no MQTT or TLS (cleartext HTTP), no adaptive 5 Hz / 50 Hz sampling or "> 65%" saving, no physical-device battery data, real thresholds (5.0 / 22.0 m/s², 2 s), real backoff (1 s to 15 s, no jitter), real test counts (78 unit, 10 instrumented) in place of "111 tasks". The security audit now lists open findings: `MonitorService`, `SosKeyReceiver` and `FallInjectionReceiver` are exported without a permission, and transport is unauthenticated cleartext. The performance audit notes that alerts with no fix carry hard-coded fallback coordinates.
+
 ### Objective re-verification fixes (2026-10-14)
 
 - `scripts/e2e-jvm.ps1`: the retry proof now uses a real server outage (server stopped before the bot's first alert, restarted while it retries) instead of a simulated failure in the bot. Added `-Count` and `-KpiCsv`.

@@ -53,10 +53,32 @@ Rows with `status = PENDING` are the outbox that `AlertSyncer` retries.
 
 ## Relationships
 
-```
-AlertMessage (wire) ──1:1──► AlertRecord (server)      keyed by alertId
-AlertMessage (wire) ──1:1──► alerts row (app, Room)    keyed by alertId
-KPI events ──many:1──► alert                            keyed by alertId
+All keyed by `alertId`.
+
+```mermaid
+erDiagram
+    ALERT_MESSAGE ||--|| ALERT_RECORD : "server stores"
+    ALERT_MESSAGE ||--|| ALERTS_ROW : "app stores"
+    ALERTS_ROW ||--o{ KPI_EVENT : "logged as"
+    ALERT_MESSAGE {
+        string alertId PK "client UUID"
+        string type "FALL, MAN_DOWN, SOS"
+        long raisedAtEpochMs
+        int attempt
+    }
+    ALERT_RECORD {
+        string status "RECEIVED, ACKNOWLEDGED"
+        long receivedAtEpochMs
+        string acknowledgedBy
+    }
+    ALERTS_ROW {
+        string status "CANCELLED, PENDING, SENT, ACKNOWLEDGED"
+        int attempts
+    }
+    KPI_EVENT {
+        long epochMs
+        string event "DETECTED, RAISED, SEND_ATTEMPT, DELIVERED, ACK_SEEN"
+    }
 ```
 
 ## KPI CSVs

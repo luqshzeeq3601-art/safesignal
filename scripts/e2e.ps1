@@ -111,7 +111,7 @@ try {
     Write-Host "Launching MainActivity and starting MonitorService..."
     adb shell am start -W -n com.safesignal.app/.MainActivity 2>&1 | Out-Null
     Start-Sleep -Seconds 1
-    adb shell am start-foreground-service -a com.safesignal.app.START_MONITORING com.safesignal.app/.service.MonitorService 2>&1 | Out-Null
+    adb shell am broadcast -a com.safesignal.app.START_MONITORING -p com.safesignal.app 2>&1 | Out-Null
     Start-Sleep -Seconds 2
 
     # Set GPS location on emulator while monitoring service is active and listening
